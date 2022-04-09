@@ -29,10 +29,10 @@ const StuffPlusInfoModal: FunctionComponent<Props> = ({ closeModal, isOpen }) =>
         <ModalBody>
           <Stack spacing={4}>
             <Text>
-              Stuff+ is a metric created by The Athletic&apos;s{" "}
+              Stuff+ is a metric for baseball pitchers created by The Athletic&apos;s{" "}
               <Link href="https://theathletic.com/author/eno-sarris/" passHref={true}>
                 <ChakraLink isExternal color="teal.500">
-                  Eno Harris
+                  Eno Sarris
                 </ChakraLink>
               </Link>
               . Stuff+ measures the quality of a pitcher&apos;s arsenal and is used along with its related metric,
