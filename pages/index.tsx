@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 
 import { GoogleSpreadsheet } from "google-spreadsheet";
+import { stringify } from "querystring";
 
 type Hand = "R" | "L";
 
@@ -16,13 +17,41 @@ interface PlayerData {
 
 interface Props {
   players: PlayerData[];
+  sheetTitle: string;
 }
 
 const Home: NextPage<Props> = ({ players }) => {
-  return <div>{players[0].name}</div>;
+  const playerRows = players.map((player) => {
+    return (
+      <tr key={player.mlbId}>
+        <td>{player.name}</td>
+        <td>{player.hand}</td>
+        <td>{player.pitchCount}</td>
+        <td>{player.stuffPlus}</td>
+        <td>{player.locationPlus}</td>
+        <td>{player.pitchingPlus}</td>
+      </tr>
+    );
+  });
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Throws</th>
+          <th>Pitches</th>
+          <th>Stuff+</th>
+          <th>Location+</th>
+          <th>Pitching+</th>
+        </tr>
+      </thead>
+      <tbody>{playerRows}</tbody>
+    </table>
+  );
 };
 
-const fetchStuffPlusGoogleDocData = async (): Promise<PlayerData[]> => {
+const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
   if (!process.env.GOOGLE_API_CLIENT_EMAIL || !process.env.GOOGLE_API_PRIVATE_KEY) {
     throw new Error("Issue loading auth credentials from env!");
   }
@@ -35,11 +64,12 @@ const fetchStuffPlusGoogleDocData = async (): Promise<PlayerData[]> => {
     client_email: process.env.GOOGLE_API_CLIENT_EMAIL,
     private_key: key,
   });
+
   await doc.loadInfo();
   const firstSheet = doc.sheetsByIndex[0];
   const rows = await firstSheet.getRows({ limit: 600, offset: 0 });
 
-  return rows.map((row) => {
+  const playerData = rows.map((row) => {
     return {
       name: row.player_name as string,
       mlbId: row.MLBAMID as string,
@@ -50,15 +80,18 @@ const fetchStuffPlusGoogleDocData = async (): Promise<PlayerData[]> => {
       pitchingPlus: parseFloat(row.PITCHINGplus),
     };
   });
+
+  return {
+    players: playerData,
+    sheetTitle: firstSheet.title,
+  };
 };
 
 export const getStaticProps = async () => {
-  const playerData = await fetchStuffPlusGoogleDocData();
+  const sheetData = await fetchStuffPlusGoogleDocData();
 
   return {
-    props: {
-      players: playerData,
-    },
+    props: sheetData,
   };
 };
 
