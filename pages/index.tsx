@@ -1,10 +1,12 @@
 import type { NextPage } from "next";
 
 import { GoogleSpreadsheet } from "google-spreadsheet";
+import { useState } from "react";
+import PlayerTableBody from "../components/PlayerTableBody";
 
 type Hand = "R" | "L";
 
-interface PlayerData {
+export interface PlayerData {
   name: string;
   mlbId: string;
   hand: Hand;
@@ -20,24 +22,37 @@ interface Props {
 }
 
 const Home: NextPage<Props> = ({ players }) => {
-  const playerRows = players.map((player) => {
-    return (
-      <tr key={player.mlbId}>
-        <td>{player.name}</td>
-        <td>{player.hand}</td>
-        <td>{player.pitchCount}</td>
-        <td>{player.stuffPlus}</td>
-        <td>{player.locationPlus}</td>
-        <td>{player.pitchingPlus}</td>
-      </tr>
-    );
-  });
+  const [playerData, setPlayerData] = useState(players);
+  const [sortedRow, setSortedRow] = useState<string>();
+  const [sortDirection, setSortDirection] = useState<string>();
+
+  const sortByName = () => {
+    let shouldReverse = false;
+    if (sortedRow === "name" && sortDirection === "asc") {
+      shouldReverse = true;
+    }
+
+    const copyToSort = [...players];
+    copyToSort.sort((playerA, playerB) => {
+      return playerA.name.localeCompare(playerB.name);
+    });
+
+    if (shouldReverse) {
+      copyToSort.reverse();
+      setSortDirection("desc");
+    } else {
+      setSortDirection("asc");
+    }
+
+    setSortedRow("name");
+    setPlayerData(copyToSort);
+  };
 
   return (
     <table>
       <thead>
         <tr>
-          <th>Name</th>
+          <th onClick={sortByName}>Name</th>
           <th>Throws</th>
           <th>Pitches</th>
           <th>Stuff+</th>
@@ -45,7 +60,9 @@ const Home: NextPage<Props> = ({ players }) => {
           <th>Pitching+</th>
         </tr>
       </thead>
-      <tbody>{playerRows}</tbody>
+      <tbody>
+        <PlayerTableBody sortedPlayerData={playerData} />
+      </tbody>
     </table>
   );
 };
