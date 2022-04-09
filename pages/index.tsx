@@ -16,19 +16,72 @@ export interface PlayerData {
   pitchingPlus: number;
 }
 
+type PlayerColumn = "name" | "hand" | "pitchCount" | "stuffPlus" | "locationPlus" | "pitchingPlus";
+type SortDirection = "ascending" | "descending";
+type PlayerComparator = (playerA: PlayerData, playerB: PlayerData) => number;
+
 interface Props {
   players: PlayerData[];
   sheetTitle: string;
 }
 
+const nameComparator = (playerA: PlayerData, playerB: PlayerData) => {
+  return playerA.name.localeCompare(playerB.name);
+};
+const handComparator = (playerA: PlayerData, playerB: PlayerData) => {
+  return playerA.hand.localeCompare(playerB.hand);
+};
+const pitchCountComparator = (playerA: PlayerData, playerB: PlayerData) => {
+  return playerB.pitchCount - playerA.pitchCount;
+};
+const stuffPlusComparator = (playerA: PlayerData, playerB: PlayerData) => {
+  return playerB.stuffPlus - playerA.stuffPlus;
+};
+const locationPlusComparator = (playerA: PlayerData, playerB: PlayerData) => {
+  return playerB.locationPlus - playerA.locationPlus;
+};
+const pitchingPlusComparator = (playerA: PlayerData, playerB: PlayerData) => {
+  return playerB.pitchingPlus - playerA.pitchingPlus;
+};
+
+const columnToSortComparatorMap: Record<PlayerColumn, PlayerComparator> = {
+  name: nameComparator,
+  hand: handComparator,
+  pitchCount: pitchCountComparator,
+  stuffPlus: stuffPlusComparator,
+  locationPlus: locationPlusComparator,
+  pitchingPlus: pitchingPlusComparator,
+};
+
 const Home: NextPage<Props> = ({ players }) => {
   const [playerData, setPlayerData] = useState(players);
-  const [sortedRow, setSortedRow] = useState<string>();
-  const [sortDirection, setSortDirection] = useState<string>();
+  const [sortedColumn, setSortedColumn] = useState<PlayerColumn>();
+  const [sortDirection, setSortDirection] = useState<SortDirection>();
+
+  const sortColumn = (columnName: PlayerColumn) => {
+    let shouldReverse = false;
+    if (sortedColumn === columnName && sortDirection === "ascending") {
+      shouldReverse = true;
+    }
+
+    const copyToSort = [...players];
+    const comparator = columnToSortComparatorMap[columnName];
+    copyToSort.sort(comparator);
+
+    if (shouldReverse) {
+      copyToSort.reverse();
+      setSortDirection("descending");
+    } else {
+      setSortDirection("ascending");
+    }
+
+    setSortedColumn(columnName);
+    setPlayerData(copyToSort);
+  };
 
   const sortByName = () => {
     let shouldReverse = false;
-    if (sortedRow === "name" && sortDirection === "asc") {
+    if (sortedColumn === "name" && sortDirection === "ascending") {
       shouldReverse = true;
     }
 
@@ -39,12 +92,12 @@ const Home: NextPage<Props> = ({ players }) => {
 
     if (shouldReverse) {
       copyToSort.reverse();
-      setSortDirection("desc");
+      setSortDirection("descending");
     } else {
-      setSortDirection("asc");
+      setSortDirection("ascending");
     }
 
-    setSortedRow("name");
+    setSortedColumn("name");
     setPlayerData(copyToSort);
   };
 
@@ -52,12 +105,48 @@ const Home: NextPage<Props> = ({ players }) => {
     <table>
       <thead>
         <tr>
-          <th onClick={sortByName}>Name</th>
-          <th>Throws</th>
-          <th>Pitches</th>
-          <th>Stuff+</th>
-          <th>Location+</th>
-          <th>Pitching+</th>
+          <th
+            onClick={() => {
+              sortColumn("name");
+            }}
+          >
+            Name
+          </th>
+          <th
+            onClick={() => {
+              sortColumn("hand");
+            }}
+          >
+            Throws
+          </th>
+          <th
+            onClick={() => {
+              sortColumn("pitchCount");
+            }}
+          >
+            Pitches
+          </th>
+          <th
+            onClick={() => {
+              sortColumn("stuffPlus");
+            }}
+          >
+            Stuff+
+          </th>
+          <th
+            onClick={() => {
+              sortColumn("locationPlus");
+            }}
+          >
+            Location+
+          </th>
+          <th
+            onClick={() => {
+              sortColumn("pitchingPlus");
+            }}
+          >
+            Pitching+
+          </th>
         </tr>
       </thead>
       <tbody>
