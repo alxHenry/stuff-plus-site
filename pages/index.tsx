@@ -5,6 +5,7 @@ import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
 import { Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
 import styles from "../styles/Table.module.css";
+import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
 
 const TWELVE_HOURS_IN_SECONDS = 43200;
 
@@ -23,9 +24,16 @@ type PlayerColumn = "name" | "hand" | "pitchCount" | "stuffPlus" | "locationPlus
 type SortDirection = "ascending" | "descending";
 type PlayerComparator = (playerA: PlayerData, playerB: PlayerData) => number;
 
+export enum MinimumPitchFilterOptions {
+  TwentyFive = 25,
+  Fifty = 50,
+  OneHundred = 100,
+  TwoHundred = 200,
+  ThreeHundred = 300,
+}
 interface Props {
-  players: PlayerData[];
-  sheetTitle: string;
+  readonly originalPlayerData: PlayerData[];
+  readonly sheetTitle: string;
 }
 
 const nameComparator = (playerA: PlayerData, playerB: PlayerData) => {
@@ -56,8 +64,8 @@ const columnToSortComparatorMap: Record<PlayerColumn, PlayerComparator> = {
   pitchingPlus: pitchingPlusComparator,
 };
 
-const Home: NextPage<Props> = ({ players }) => {
-  const [playerData, setPlayerData] = useState(players);
+const Home: NextPage<Props> = ({ originalPlayerData }) => {
+  const [playerData, setPlayerData] = useState(originalPlayerData);
   const [sortedColumn, setSortedColumn] = useState<PlayerColumn>();
   const [sortDirection, setSortDirection] = useState<SortDirection>();
 
@@ -67,7 +75,7 @@ const Home: NextPage<Props> = ({ players }) => {
       shouldReverse = true;
     }
 
-    const copyToSort = [...players];
+    const copyToSort = [...playerData];
     const comparator = columnToSortComparatorMap[columnName];
     copyToSort.sort(comparator);
 
@@ -82,61 +90,86 @@ const Home: NextPage<Props> = ({ players }) => {
     setPlayerData(copyToSort);
   };
 
+  const filterByPitchMinimum = (selectedOption: MinimumPitchFilterOptions | undefined) => {
+    const copyToFilter = [...originalPlayerData];
+    if (selectedOption == null) {
+      setPlayerData(copyToFilter);
+      return;
+    }
+
+    const filtered = copyToFilter.reduce<PlayerData[]>((filteredPlayers, player) => {
+      if (player.pitchCount >= selectedOption) {
+        filteredPlayers.push(player);
+      }
+      return filteredPlayers;
+    }, []);
+
+    setPlayerData(filtered);
+  };
+
   return (
-    <TableContainer>
-      <Table variant="striped">
-        <Thead>
-          <Tr>
-            <Th
-              onClick={() => {
-                sortColumn("name");
-              }}
-              className={styles.sortableHeader}
-            >
-              Name
-            </Th>
-            <Th
-              onClick={() => {
-                sortColumn("hand");
-              }}
-            >
-              Throws
-            </Th>
-            <Th
-              onClick={() => {
-                sortColumn("pitchCount");
-              }}
-            >
-              Pitches
-            </Th>
-            <Th
-              onClick={() => {
-                sortColumn("stuffPlus");
-              }}
-            >
-              Stuff+
-            </Th>
-            <Th
-              onClick={() => {
-                sortColumn("locationPlus");
-              }}
-            >
-              Location+
-            </Th>
-            <Th
-              onClick={() => {
-                sortColumn("pitchingPlus");
-              }}
-            >
-              Pitching+
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          <PlayerTableBody sortedPlayerData={playerData} />
-        </Tbody>
-      </Table>
-    </TableContainer>
+    <>
+      <TableMinimumPitchesFilter onSelection={filterByPitchMinimum} />
+      <TableContainer>
+        <Table variant="striped">
+          <Thead>
+            <Tr>
+              <Th
+                className={styles.sortableHeader}
+                onClick={() => {
+                  sortColumn("name");
+                }}
+              >
+                Name
+              </Th>
+              <Th
+                className={styles.sortableHeader}
+                onClick={() => {
+                  sortColumn("hand");
+                }}
+              >
+                Throws
+              </Th>
+              <Th
+                className={styles.sortableHeader}
+                onClick={() => {
+                  sortColumn("pitchCount");
+                }}
+              >
+                Pitches
+              </Th>
+              <Th
+                className={styles.sortableHeader}
+                onClick={() => {
+                  sortColumn("stuffPlus");
+                }}
+              >
+                Stuff+
+              </Th>
+              <Th
+                className={styles.sortableHeader}
+                onClick={() => {
+                  sortColumn("locationPlus");
+                }}
+              >
+                Location+
+              </Th>
+              <Th
+                className={styles.sortableHeader}
+                onClick={() => {
+                  sortColumn("pitchingPlus");
+                }}
+              >
+                Pitching+
+              </Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            <PlayerTableBody sortedPlayerData={playerData} />
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </>
   );
 };
 
@@ -171,7 +204,7 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
   });
 
   return {
-    players: playerData,
+    originalPlayerData: playerData,
     sheetTitle: firstSheet.title,
   };
 };
