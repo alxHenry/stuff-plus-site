@@ -80,28 +80,6 @@ const Home: NextPage<Props> = ({ players }) => {
     setPlayerData(copyToSort);
   };
 
-  const sortByName = () => {
-    let shouldReverse = false;
-    if (sortedColumn === "name" && sortDirection === "ascending") {
-      shouldReverse = true;
-    }
-
-    const copyToSort = [...players];
-    copyToSort.sort((playerA, playerB) => {
-      return playerA.name.localeCompare(playerB.name);
-    });
-
-    if (shouldReverse) {
-      copyToSort.reverse();
-      setSortDirection("descending");
-    } else {
-      setSortDirection("ascending");
-    }
-
-    setSortedColumn("name");
-    setPlayerData(copyToSort);
-  };
-
   return (
     <table>
       <thead>
