@@ -22,8 +22,6 @@ import styles from "../styles/Table.module.css";
 import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
 import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 
-const TWELVE_HOURS_IN_SECONDS = 43200;
-
 export interface PlayerData {
   name: string;
   mlbId: string;
@@ -230,8 +228,8 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
   });
 
   await doc.loadInfo();
-  const firstSheet = doc.sheetsByIndex[0];
-  const rows = await firstSheet.getRows({ limit: 600, offset: 0 });
+  const springTrainingSheet = doc.sheetsByTitle["Spring Training 2022 (thru 4/5)"];
+  const rows = await springTrainingSheet.getRows({ limit: 600, offset: 0 });
 
   const playerData = rows.map((row) => {
     return {
@@ -247,7 +245,7 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
 
   return {
     originalPlayerData: playerData,
-    sheetTitle: firstSheet.title,
+    sheetTitle: springTrainingSheet.title,
   };
 };
 
@@ -256,7 +254,6 @@ export const getStaticProps = async () => {
 
   return {
     props: sheetData,
-    revalidate: TWELVE_HOURS_IN_SECONDS,
   };
 };
 
