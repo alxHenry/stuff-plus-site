@@ -4,7 +4,7 @@ import { GoogleSpreadsheet } from "google-spreadsheet";
 import Head from "next/head";
 import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
-import { Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
+import { Center, Heading, Stack, Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
 import styles from "../styles/Table.module.css";
 import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
 
@@ -65,7 +65,7 @@ const columnToSortComparatorMap: Record<PlayerColumn, PlayerComparator> = {
   pitchingPlus: pitchingPlusComparator,
 };
 
-const Home: NextPage<Props> = ({ originalPlayerData }) => {
+const Home: NextPage<Props> = ({ originalPlayerData, sheetTitle }) => {
   const [playerData, setPlayerData] = useState(originalPlayerData);
   const [sortedColumn, setSortedColumn] = useState<PlayerColumn>();
   const [sortDirection, setSortDirection] = useState<SortDirection>();
@@ -111,69 +111,76 @@ const Home: NextPage<Props> = ({ originalPlayerData }) => {
   return (
     <>
       <Head>
-        <title>Stuff+ Pitching Statistic</title>
+        <title>Stuff+ Pitching Metric</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <TableMinimumPitchesFilter onSelection={filterByPitchMinimum} />
-      <TableContainer>
-        <Table variant="striped">
-          <Thead>
-            <Tr>
-              <Th
-                className={styles.sortableHeader}
-                onClick={() => {
-                  sortColumn("name");
-                }}
-              >
-                Name
-              </Th>
-              <Th
-                className={styles.sortableHeader}
-                onClick={() => {
-                  sortColumn("hand");
-                }}
-              >
-                Throws
-              </Th>
-              <Th
-                className={styles.sortableHeader}
-                onClick={() => {
-                  sortColumn("pitchCount");
-                }}
-              >
-                Pitches
-              </Th>
-              <Th
-                className={styles.sortableHeader}
-                onClick={() => {
-                  sortColumn("stuffPlus");
-                }}
-              >
-                Stuff+
-              </Th>
-              <Th
-                className={styles.sortableHeader}
-                onClick={() => {
-                  sortColumn("locationPlus");
-                }}
-              >
-                Location+
-              </Th>
-              <Th
-                className={styles.sortableHeader}
-                onClick={() => {
-                  sortColumn("pitchingPlus");
-                }}
-              >
-                Pitching+
-              </Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            <PlayerTableBody sortedPlayerData={playerData} />
-          </Tbody>
-        </Table>
-      </TableContainer>
+      <Stack spacing={4}>
+        <Center>
+          <Heading as="h1" size="lg" isTruncated>
+            {sheetTitle}
+          </Heading>
+        </Center>
+        <TableMinimumPitchesFilter onSelection={filterByPitchMinimum} />
+        <TableContainer>
+          <Table variant="striped">
+            <Thead>
+              <Tr>
+                <Th
+                  className={styles.sortableHeader}
+                  onClick={() => {
+                    sortColumn("name");
+                  }}
+                >
+                  Name
+                </Th>
+                <Th
+                  className={styles.sortableHeader}
+                  onClick={() => {
+                    sortColumn("hand");
+                  }}
+                >
+                  Throws
+                </Th>
+                <Th
+                  className={styles.sortableHeader}
+                  onClick={() => {
+                    sortColumn("pitchCount");
+                  }}
+                >
+                  Pitches
+                </Th>
+                <Th
+                  className={styles.sortableHeader}
+                  onClick={() => {
+                    sortColumn("stuffPlus");
+                  }}
+                >
+                  Stuff+
+                </Th>
+                <Th
+                  className={styles.sortableHeader}
+                  onClick={() => {
+                    sortColumn("locationPlus");
+                  }}
+                >
+                  Location+
+                </Th>
+                <Th
+                  className={styles.sortableHeader}
+                  onClick={() => {
+                    sortColumn("pitchingPlus");
+                  }}
+                >
+                  Pitching+
+                </Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              <PlayerTableBody sortedPlayerData={playerData} />
+            </Tbody>
+          </Table>
+        </TableContainer>
+      </Stack>
     </>
   );
 };
