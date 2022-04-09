@@ -4,9 +4,23 @@ import { GoogleSpreadsheet } from "google-spreadsheet";
 import Head from "next/head";
 import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
-import { Center, Heading, Stack, Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Heading,
+  Link as ChakraLink,
+  Stack,
+  Table,
+  TableContainer,
+  Tbody,
+  Text,
+  Th,
+  Thead,
+  Tr,
+} from "@chakra-ui/react";
 import styles from "../styles/Table.module.css";
 import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
+import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 
 const TWELVE_HOURS_IN_SECONDS = 43200;
 
@@ -67,8 +81,16 @@ const columnToSortComparatorMap: Record<PlayerColumn, PlayerComparator> = {
 
 const Home: NextPage<Props> = ({ originalPlayerData, sheetTitle }) => {
   const [playerData, setPlayerData] = useState(originalPlayerData);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [sortedColumn, setSortedColumn] = useState<PlayerColumn>();
   const [sortDirection, setSortDirection] = useState<SortDirection>();
+
+  const openInfoModal = () => {
+    setIsInfoModalOpen(true);
+  };
+  const closeInfoModal = () => {
+    setIsInfoModalOpen(false);
+  };
 
   const sortColumn = (columnName: PlayerColumn) => {
     let shouldReverse = false;
@@ -114,7 +136,15 @@ const Home: NextPage<Props> = ({ originalPlayerData, sheetTitle }) => {
         <title>Stuff+ Pitching Metric</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
+      <StuffPlusInfoModal closeModal={closeInfoModal} isOpen={isInfoModalOpen} />
       <Stack spacing={4}>
+        <Box backgroundColor="teal.500" padding={2}>
+          <ChakraLink onClick={openInfoModal} color="white">
+            <Text fontWeight={600} size="lg">
+              What is Stuff+
+            </Text>
+          </ChakraLink>
+        </Box>
         <Center>
           <Heading as="h1" size="lg" isTruncated>
             {sheetTitle}
