@@ -148,7 +148,11 @@ const Home: NextPage<Props> = ({ originalPlayerData, sheetTitle }) => {
             {sheetTitle}
           </Heading>
         </Center>
-        <TableMinimumPitchesFilter onSelection={filterByPitchMinimum} />
+        <Center>
+          <Box>
+            <TableMinimumPitchesFilter onSelection={filterByPitchMinimum} />
+          </Box>
+        </Center>
         <TableContainer>
           <Table variant="striped">
             <Thead>
