@@ -3,6 +3,8 @@ import type { NextPage } from "next";
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
+import { Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
+import styles from "../styles/Table.module.css";
 
 const TWELVE_HOURS_IN_SECONDS = 43200;
 
@@ -81,57 +83,60 @@ const Home: NextPage<Props> = ({ players }) => {
   };
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th
-            onClick={() => {
-              sortColumn("name");
-            }}
-          >
-            Name
-          </th>
-          <th
-            onClick={() => {
-              sortColumn("hand");
-            }}
-          >
-            Throws
-          </th>
-          <th
-            onClick={() => {
-              sortColumn("pitchCount");
-            }}
-          >
-            Pitches
-          </th>
-          <th
-            onClick={() => {
-              sortColumn("stuffPlus");
-            }}
-          >
-            Stuff+
-          </th>
-          <th
-            onClick={() => {
-              sortColumn("locationPlus");
-            }}
-          >
-            Location+
-          </th>
-          <th
-            onClick={() => {
-              sortColumn("pitchingPlus");
-            }}
-          >
-            Pitching+
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <PlayerTableBody sortedPlayerData={playerData} />
-      </tbody>
-    </table>
+    <TableContainer>
+      <Table variant="striped">
+        <Thead>
+          <Tr>
+            <Th
+              onClick={() => {
+                sortColumn("name");
+              }}
+              className={styles.sortableHeader}
+            >
+              Name
+            </Th>
+            <Th
+              onClick={() => {
+                sortColumn("hand");
+              }}
+            >
+              Throws
+            </Th>
+            <Th
+              onClick={() => {
+                sortColumn("pitchCount");
+              }}
+            >
+              Pitches
+            </Th>
+            <Th
+              onClick={() => {
+                sortColumn("stuffPlus");
+              }}
+            >
+              Stuff+
+            </Th>
+            <Th
+              onClick={() => {
+                sortColumn("locationPlus");
+              }}
+            >
+              Location+
+            </Th>
+            <Th
+              onClick={() => {
+                sortColumn("pitchingPlus");
+              }}
+            >
+              Pitching+
+            </Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          <PlayerTableBody sortedPlayerData={playerData} />
+        </Tbody>
+      </Table>
+    </TableContainer>
   );
 };
 

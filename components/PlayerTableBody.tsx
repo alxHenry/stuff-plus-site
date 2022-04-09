@@ -1,3 +1,4 @@
+import { Td, Tr } from "@chakra-ui/react";
 import { FunctionComponent } from "react";
 import { PlayerData } from "../pages";
 
@@ -8,14 +9,14 @@ interface Props {
 const PlayerTableBody: FunctionComponent<Props> = ({ sortedPlayerData }) => {
   const playerRows = sortedPlayerData.map((player) => {
     return (
-      <tr key={player.mlbId}>
-        <td>{player.name}</td>
-        <td>{player.hand}</td>
-        <td>{player.pitchCount}</td>
-        <td>{player.stuffPlus}</td>
-        <td>{player.locationPlus}</td>
-        <td>{player.pitchingPlus}</td>
-      </tr>
+      <Tr key={player.mlbId}>
+        <Td>{player.name}</Td>
+        <Td>{player.hand}</Td>
+        <Td>{player.pitchCount}</Td>
+        <Td>{player.stuffPlus}</Td>
+        <Td>{player.locationPlus}</Td>
+        <Td>{player.pitchingPlus}</Td>
+      </Tr>
     );
   });
 
