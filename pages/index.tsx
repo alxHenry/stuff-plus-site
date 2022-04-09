@@ -4,7 +4,7 @@ import { GoogleSpreadsheet } from "google-spreadsheet";
 import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
 
-type Hand = "R" | "L";
+const TWELVE_HOURS_IN_SECONDS = 43200;
 
 export interface PlayerData {
   name: string;
@@ -16,6 +16,7 @@ export interface PlayerData {
   pitchingPlus: number;
 }
 
+type Hand = "R" | "L";
 type PlayerColumn = "name" | "hand" | "pitchCount" | "stuffPlus" | "locationPlus" | "pitchingPlus";
 type SortDirection = "ascending" | "descending";
 type PlayerComparator = (playerA: PlayerData, playerB: PlayerData) => number;
@@ -192,7 +193,6 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
   };
 };
 
-const TWELVE_HOURS_IN_SECONDS = 43200;
 export const getStaticProps = async () => {
   const sheetData = await fetchStuffPlusGoogleDocData();
 
