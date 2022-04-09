@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 
 import { GoogleSpreadsheet } from "google-spreadsheet";
+import Head from "next/head";
 import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
 import { Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
@@ -109,6 +110,10 @@ const Home: NextPage<Props> = ({ originalPlayerData }) => {
 
   return (
     <>
+      <Head>
+        <title>Stuff+ Pitching Statistic</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
       <TableMinimumPitchesFilter onSelection={filterByPitchMinimum} />
       <TableContainer>
         <Table variant="striped">
