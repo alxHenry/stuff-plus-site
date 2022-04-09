@@ -192,11 +192,13 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
   };
 };
 
+const TWELVE_HOURS_IN_SECONDS = 43200;
 export const getStaticProps = async () => {
   const sheetData = await fetchStuffPlusGoogleDocData();
 
   return {
     props: sheetData,
+    revalidate: TWELVE_HOURS_IN_SECONDS,
   };
 };
 
