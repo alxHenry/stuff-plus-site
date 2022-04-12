@@ -22,6 +22,7 @@ import styles from "../styles/Table.module.css";
 import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
 import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
+import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 
 export interface PlayerData {
   name: string;
@@ -38,7 +39,7 @@ export interface PlayerDataSet {
   data: PlayerData[];
 }
 
-type Hand = "R" | "L";
+export type Hand = "R" | "L";
 type PlayerColumn = "name" | "hand" | "pitchCount" | "stuffPlus" | "locationPlus" | "pitchingPlus";
 type SortDirection = "ascending" | "descending";
 type PlayerComparator = (playerA: PlayerData, playerB: PlayerData) => number;
@@ -262,18 +263,6 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
       { title: currentSheet.title, data: currentPlayerData },
       { title: lastSeasonSheet.title, data: lastSeasonPlayerData },
     ],
-  };
-};
-
-const sheetRowToPlayerData = (row: GoogleSpreadsheetRow): PlayerData => {
-  return {
-    name: (row.player_name as string) || (row.Player as string),
-    mlbId: (row.MLBAMID as string) || (row.Player as string),
-    hand: (row.P_THROWS as Hand) || "",
-    pitchCount: parseInt(row.Pitches, 10),
-    stuffPlus: parseFloat(row.STUFFplus) || parseFloat(row["Stuff+"]),
-    locationPlus: parseFloat(row.LOCATIONplus) || parseFloat(row["Location+"]),
-    pitchingPlus: parseFloat(row.PITCHINGplus) || parseFloat(row["Pitching+"]),
   };
 };
 
