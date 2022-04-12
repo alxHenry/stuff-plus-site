@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 
-import { GoogleSpreadsheet } from "google-spreadsheet";
+import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
 import Head from "next/head";
 import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
@@ -45,7 +45,8 @@ export enum MinimumPitchFilterOptions {
   ThreeHundred = 300,
 }
 interface Props {
-  readonly originalPlayerData: PlayerData[];
+  readonly lastSeasonPlayerData: PlayerData[];
+  readonly currentPlayerData: PlayerData[];
   readonly sheetTitle: string;
 }
 
@@ -77,8 +78,8 @@ const columnToSortComparatorMap: Record<PlayerColumn, PlayerComparator> = {
   pitchingPlus: pitchingPlusComparator,
 };
 
-const Home: NextPage<Props> = ({ originalPlayerData, sheetTitle }) => {
-  const [playerData, setPlayerData] = useState(originalPlayerData);
+const Home: NextPage<Props> = ({ currentPlayerData, sheetTitle }) => {
+  const [playerData, setPlayerData] = useState(currentPlayerData);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [sortedColumn, setSortedColumn] = useState<PlayerColumn>();
   const [sortDirection, setSortDirection] = useState<SortDirection>();
@@ -112,7 +113,7 @@ const Home: NextPage<Props> = ({ originalPlayerData, sheetTitle }) => {
   };
 
   const filterByPitchMinimum = (selectedOption: MinimumPitchFilterOptions | undefined) => {
-    const copyToFilter = [...originalPlayerData];
+    const copyToFilter = [...currentPlayerData];
     if (selectedOption == null) {
       setPlayerData(copyToFilter);
       return;
@@ -232,24 +233,33 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
   });
 
   await doc.loadInfo();
-  const dataSheet = doc.sheetsByTitle["4/11/2022"];
-  const rows = await dataSheet.getRows({ limit: 600, offset: 0 });
+  const lastSeasonSheet = doc.sheetsByTitle["End of Season Stuff+/Location+"];
+  const currentSheet = doc.sheetsByTitle["4/11/2022"];
 
-  const playerData = rows.map((row) => {
-    return {
-      name: row.player_name as string,
-      mlbId: row.MLBAMID as string,
-      hand: row.P_THROWS as Hand,
-      pitchCount: parseInt(row.Pitches, 10),
-      stuffPlus: parseFloat(row.STUFFplus),
-      locationPlus: parseFloat(row.LOCATIONplus),
-      pitchingPlus: parseFloat(row.PITCHINGplus),
-    };
-  });
+  const [currentRows, lastSeasonRows] = await Promise.all([
+    currentSheet.getRows({ limit: 600, offset: 0 }),
+    lastSeasonSheet.getRows({ limit: 600, offset: 0 }),
+  ]);
+
+  const playerData = currentRows.map(sheetRowToPlayerData);
+  const lastSeasonPlayerData = lastSeasonRows.map(sheetRowToPlayerData);
 
   return {
-    originalPlayerData: playerData,
-    sheetTitle: dataSheet.title,
+    currentPlayerData: playerData,
+    lastSeasonPlayerData: lastSeasonPlayerData,
+    sheetTitle: currentSheet.title,
+  };
+};
+
+const sheetRowToPlayerData = (row: GoogleSpreadsheetRow): PlayerData => {
+  return {
+    name: (row.player_name as string) || (row.Player as string),
+    mlbId: (row.MLBAMID as string) || (row.Player as string),
+    hand: (row.P_THROWS as Hand) || "",
+    pitchCount: parseInt(row.Pitches, 10),
+    stuffPlus: parseFloat(row.STUFFplus) || parseFloat(row["Stuff+"]),
+    locationPlus: parseFloat(row.LOCATIONplus) || parseFloat(row["Location+"]),
+    pitchingPlus: parseFloat(row.PITCHINGplus) || parseFloat(row["Pitching+"]),
   };
 };
 
