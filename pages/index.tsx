@@ -21,6 +21,7 @@ import {
 import styles from "../styles/Table.module.css";
 import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
 import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
+import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
 
 export interface PlayerData {
   name: string;
@@ -30,6 +31,11 @@ export interface PlayerData {
   stuffPlus: number;
   locationPlus: number;
   pitchingPlus: number;
+}
+
+export interface PlayerDataSet {
+  title: string;
+  data: PlayerData[];
 }
 
 type Hand = "R" | "L";
@@ -45,9 +51,7 @@ export enum MinimumPitchFilterOptions {
   ThreeHundred = 300,
 }
 interface Props {
-  readonly lastSeasonPlayerData: PlayerData[];
-  readonly currentPlayerData: PlayerData[];
-  readonly sheetTitle: string;
+  readonly playerDataSets: PlayerDataSet[];
 }
 
 const nameComparator = (playerA: PlayerData, playerB: PlayerData) => {
@@ -78,11 +82,19 @@ const columnToSortComparatorMap: Record<PlayerColumn, PlayerComparator> = {
   pitchingPlus: pitchingPlusComparator,
 };
 
-const Home: NextPage<Props> = ({ currentPlayerData, sheetTitle }) => {
-  const [playerData, setPlayerData] = useState(currentPlayerData);
+const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
+  const [selectedDataSetIndex, setSelectedDataSetIndex] = useState(0);
+  const [filteredAndSortedPlayerData, setFilteredAndSortedPlayerData] = useState(originalPlayerDataSets[0].data);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [sortedColumn, setSortedColumn] = useState<PlayerColumn>();
   const [sortDirection, setSortDirection] = useState<SortDirection>();
+
+  const currentTitle = originalPlayerDataSets[selectedDataSetIndex].title;
+
+  const switchDataSet = (selectedDataSetIndex: number) => {
+    setSelectedDataSetIndex(selectedDataSetIndex);
+    setFilteredAndSortedPlayerData(originalPlayerDataSets[selectedDataSetIndex].data);
+  };
 
   const openInfoModal = () => {
     setIsInfoModalOpen(true);
@@ -97,7 +109,7 @@ const Home: NextPage<Props> = ({ currentPlayerData, sheetTitle }) => {
       shouldReverse = true;
     }
 
-    const copyToSort = [...playerData];
+    const copyToSort = [...filteredAndSortedPlayerData];
     const comparator = columnToSortComparatorMap[columnName];
     copyToSort.sort(comparator);
 
@@ -109,13 +121,13 @@ const Home: NextPage<Props> = ({ currentPlayerData, sheetTitle }) => {
     }
 
     setSortedColumn(columnName);
-    setPlayerData(copyToSort);
+    setFilteredAndSortedPlayerData(copyToSort);
   };
 
   const filterByPitchMinimum = (selectedOption: MinimumPitchFilterOptions | undefined) => {
-    const copyToFilter = [...currentPlayerData];
+    const copyToFilter = [...originalPlayerDataSets[selectedDataSetIndex].data];
     if (selectedOption == null) {
-      setPlayerData(copyToFilter);
+      setFilteredAndSortedPlayerData(copyToFilter);
       return;
     }
 
@@ -126,7 +138,7 @@ const Home: NextPage<Props> = ({ currentPlayerData, sheetTitle }) => {
       return filteredPlayers;
     }, []);
 
-    setPlayerData(filtered);
+    setFilteredAndSortedPlayerData(filtered);
   };
 
   return (
@@ -146,11 +158,12 @@ const Home: NextPage<Props> = ({ currentPlayerData, sheetTitle }) => {
         </Box>
         <Center>
           <Heading as="h1" size="lg" isTruncated>
-            {sheetTitle}
+            {currentTitle}
           </Heading>
         </Center>
         <Center>
           <Box>
+            <TableDataSetSelectionFilter onSelection={switchDataSet} playerDataSets={originalPlayerDataSets} />
             <TableMinimumPitchesFilter onSelection={filterByPitchMinimum} />
           </Box>
         </Center>
@@ -209,7 +222,7 @@ const Home: NextPage<Props> = ({ currentPlayerData, sheetTitle }) => {
               </Tr>
             </Thead>
             <Tbody>
-              <PlayerTableBody sortedPlayerData={playerData} />
+              <PlayerTableBody sortedPlayerData={filteredAndSortedPlayerData} />
             </Tbody>
           </Table>
         </TableContainer>
@@ -234,20 +247,21 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
 
   await doc.loadInfo();
   const lastSeasonSheet = doc.sheetsByTitle["End of Season Stuff+/Location+"];
-  const currentSheet = doc.sheetsByTitle["4/11/2022"];
+  const currentSheet = doc.sheetsByIndex[0];
 
   const [currentRows, lastSeasonRows] = await Promise.all([
     currentSheet.getRows({ limit: 600, offset: 0 }),
     lastSeasonSheet.getRows({ limit: 600, offset: 0 }),
   ]);
 
-  const playerData = currentRows.map(sheetRowToPlayerData);
+  const currentPlayerData = currentRows.map(sheetRowToPlayerData);
   const lastSeasonPlayerData = lastSeasonRows.map(sheetRowToPlayerData);
 
   return {
-    currentPlayerData: playerData,
-    lastSeasonPlayerData: lastSeasonPlayerData,
-    sheetTitle: currentSheet.title,
+    playerDataSets: [
+      { title: currentSheet.title, data: currentPlayerData },
+      { title: lastSeasonSheet.title, data: lastSeasonPlayerData },
+    ],
   };
 };
 
