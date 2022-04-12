@@ -232,8 +232,8 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
   });
 
   await doc.loadInfo();
-  const springTrainingSheet = doc.sheetsByTitle["Spring Training 2022 (thru 4/5)"];
-  const rows = await springTrainingSheet.getRows({ limit: 600, offset: 0 });
+  const dataSheet = doc.sheetsByTitle["4/11/2022"];
+  const rows = await dataSheet.getRows({ limit: 600, offset: 0 });
 
   const playerData = rows.map((row) => {
     return {
@@ -249,7 +249,7 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
 
   return {
     originalPlayerData: playerData,
-    sheetTitle: springTrainingSheet.title,
+    sheetTitle: dataSheet.title,
   };
 };
 
