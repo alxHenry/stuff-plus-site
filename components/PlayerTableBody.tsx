@@ -1,6 +1,7 @@
 import { Td, Tr } from "@chakra-ui/react";
 import { FunctionComponent } from "react";
 import { PlayerData } from "../pages";
+import { pitchScoreToColorGradient } from "../util/playerTableUtils";
 
 interface Props {
   sortedPlayerData: PlayerData[];
@@ -12,9 +13,9 @@ const PlayerTableBody: FunctionComponent<Props> = ({ sortedPlayerData }) => {
       <Tr key={player.mlbId}>
         <Td>{player.name}</Td>
         <Td>{player.pitchCount}</Td>
-        <Td>{player.stuffPlus}</Td>
-        <Td>{player.locationPlus}</Td>
-        <Td>{player.pitchingPlus}</Td>
+        <Td backgroundColor={pitchScoreToColorGradient(player.stuffPlus)}>{player.stuffPlus}</Td>
+        <Td backgroundColor={pitchScoreToColorGradient(player.locationPlus)}>{player.locationPlus}</Td>
+        <Td backgroundColor={pitchScoreToColorGradient(player.pitchingPlus)}>{player.pitchingPlus}</Td>
       </Tr>
     );
   });

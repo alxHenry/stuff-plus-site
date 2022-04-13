@@ -157,13 +157,13 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
           </Heading>
         </Center>
         <Center>
-          <Box>
+          <Stack>
             <TableDataSetSelectionFilter onSelection={switchDataSet} playerDataSets={originalPlayerDataSets} />
             <TableMinimumPitchesFilter onSelection={filterByPitchMinimum} />
-          </Box>
+          </Stack>
         </Center>
         <TableContainer>
-          <Table variant="striped">
+          <Table>
             <Thead>
               <Tr>
                 <Th
