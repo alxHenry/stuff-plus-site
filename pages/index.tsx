@@ -27,7 +27,6 @@ import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 export interface PlayerData {
   name: string;
   mlbId: string;
-  hand: Hand;
   pitchCount: number;
   stuffPlus: number;
   locationPlus: number;
@@ -39,8 +38,7 @@ export interface PlayerDataSet {
   data: PlayerData[];
 }
 
-export type Hand = "R" | "L";
-type PlayerColumn = "name" | "hand" | "pitchCount" | "stuffPlus" | "locationPlus" | "pitchingPlus";
+type PlayerColumn = "name" | "pitchCount" | "stuffPlus" | "locationPlus" | "pitchingPlus";
 type SortDirection = "ascending" | "descending";
 type PlayerComparator = (playerA: PlayerData, playerB: PlayerData) => number;
 
@@ -58,9 +56,6 @@ interface Props {
 const nameComparator = (playerA: PlayerData, playerB: PlayerData) => {
   return playerA.name.localeCompare(playerB.name);
 };
-const handComparator = (playerA: PlayerData, playerB: PlayerData) => {
-  return playerA.hand.localeCompare(playerB.hand);
-};
 const pitchCountComparator = (playerA: PlayerData, playerB: PlayerData) => {
   return playerB.pitchCount - playerA.pitchCount;
 };
@@ -76,7 +71,6 @@ const pitchingPlusComparator = (playerA: PlayerData, playerB: PlayerData) => {
 
 const columnToSortComparatorMap: Record<PlayerColumn, PlayerComparator> = {
   name: nameComparator,
-  hand: handComparator,
   pitchCount: pitchCountComparator,
   stuffPlus: stuffPlusComparator,
   locationPlus: locationPlusComparator,
@@ -179,14 +173,6 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
                   }}
                 >
                   Name
-                </Th>
-                <Th
-                  className={styles.sortableHeader}
-                  onClick={() => {
-                    sortColumn("hand");
-                  }}
-                >
-                  Throws
                 </Th>
                 <Th
                   className={styles.sortableHeader}

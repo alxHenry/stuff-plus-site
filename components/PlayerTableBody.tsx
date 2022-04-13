@@ -11,7 +11,6 @@ const PlayerTableBody: FunctionComponent<Props> = ({ sortedPlayerData }) => {
     return (
       <Tr key={player.mlbId}>
         <Td>{player.name}</Td>
-        <Td>{player.hand}</Td>
         <Td>{player.pitchCount}</Td>
         <Td>{player.stuffPlus}</Td>
         <Td>{player.locationPlus}</Td>
