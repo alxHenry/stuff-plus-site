@@ -24,7 +24,8 @@ import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import { columnToSortComparatorMap, getSortIcon } from "../util/playerTableUtils";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+
+const TWELVE_HOURS_IN_SECONDS = 43200;
 
 export interface PlayerData {
   name: string;
@@ -245,6 +246,7 @@ export const getStaticProps = async () => {
 
   return {
     props: sheetData,
+    revalidate: TWELVE_HOURS_IN_SECONDS, // Check for source sheet updates every 12 hours when requests come in
   };
 };
 
