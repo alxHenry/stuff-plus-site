@@ -23,6 +23,7 @@ import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
 import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
+import { columnToSortComparatorMap } from "../util/playerTableUtils";
 
 export interface PlayerData {
   name: string;
@@ -38,9 +39,8 @@ export interface PlayerDataSet {
   data: PlayerData[];
 }
 
-type PlayerColumn = "name" | "pitchCount" | "stuffPlus" | "locationPlus" | "pitchingPlus";
-type SortDirection = "ascending" | "descending";
-type PlayerComparator = (playerA: PlayerData, playerB: PlayerData) => number;
+export type PlayerColumn = "name" | "pitchCount" | "stuffPlus" | "locationPlus" | "pitchingPlus";
+export type SortDirection = "ascending" | "descending";
 
 export enum MinimumPitchFilterOptions {
   TwentyFive = 25,
@@ -52,30 +52,6 @@ export enum MinimumPitchFilterOptions {
 interface Props {
   readonly playerDataSets: PlayerDataSet[];
 }
-
-const nameComparator = (playerA: PlayerData, playerB: PlayerData) => {
-  return playerA.name.localeCompare(playerB.name);
-};
-const pitchCountComparator = (playerA: PlayerData, playerB: PlayerData) => {
-  return playerB.pitchCount - playerA.pitchCount;
-};
-const stuffPlusComparator = (playerA: PlayerData, playerB: PlayerData) => {
-  return playerB.stuffPlus - playerA.stuffPlus;
-};
-const locationPlusComparator = (playerA: PlayerData, playerB: PlayerData) => {
-  return playerB.locationPlus - playerA.locationPlus;
-};
-const pitchingPlusComparator = (playerA: PlayerData, playerB: PlayerData) => {
-  return playerB.pitchingPlus - playerA.pitchingPlus;
-};
-
-const columnToSortComparatorMap: Record<PlayerColumn, PlayerComparator> = {
-  name: nameComparator,
-  pitchCount: pitchCountComparator,
-  stuffPlus: stuffPlusComparator,
-  locationPlus: locationPlusComparator,
-  pitchingPlus: pitchingPlusComparator,
-};
 
 const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
   const [selectedDataSetIndex, setSelectedDataSetIndex] = useState(0);
