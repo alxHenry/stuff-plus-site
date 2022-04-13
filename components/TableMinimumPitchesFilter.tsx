@@ -1,5 +1,5 @@
 import { Select } from "@chakra-ui/react";
-import { ArrowDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import { FunctionComponent } from "react";
 import { MinimumPitchFilterOptions } from "../pages";
 
@@ -10,7 +10,7 @@ interface Props {
 const TableMinimumPitchesFilter: FunctionComponent<Props> = ({ onSelection }) => {
   return (
     <Select
-      icon={<ArrowDownIcon />}
+      icon={<ChevronDownIcon />}
       placeholder="Select minimum pitch count"
       onChange={(selection) => {
         if (selection.currentTarget.value === "") {

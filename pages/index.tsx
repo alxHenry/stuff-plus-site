@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 
-import { GoogleSpreadsheet, GoogleSpreadsheetRow } from "google-spreadsheet";
+import { GoogleSpreadsheet } from "google-spreadsheet";
 import Head from "next/head";
 import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
@@ -23,7 +23,8 @@ import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
 import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
-import { columnToSortComparatorMap } from "../util/playerTableUtils";
+import { columnToSortComparatorMap, getSortIcon } from "../util/playerTableUtils";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 export interface PlayerData {
   name: string;
@@ -63,6 +64,9 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
   const currentTitle = originalPlayerDataSets[selectedDataSetIndex].title;
 
   const switchDataSet = (selectedDataSetIndex: number) => {
+    setSortedColumn(undefined);
+    setSortDirection(undefined);
+
     setSelectedDataSetIndex(selectedDataSetIndex);
     setFilteredAndSortedPlayerData(originalPlayerDataSets[selectedDataSetIndex].data);
   };
@@ -99,6 +103,8 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
     const copyToFilter = [...originalPlayerDataSets[selectedDataSetIndex].data];
     if (selectedOption == null) {
       setFilteredAndSortedPlayerData(copyToFilter);
+      setSortedColumn(undefined);
+      setSortDirection(undefined);
       return;
     }
 
@@ -110,6 +116,8 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
     }, []);
 
     setFilteredAndSortedPlayerData(filtered);
+    setSortedColumn(undefined);
+    setSortDirection(undefined);
   };
 
   return (
@@ -148,7 +156,7 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
                     sortColumn("name");
                   }}
                 >
-                  Name
+                  Name {getSortIcon("name", sortedColumn, sortDirection)}
                 </Th>
                 <Th
                   className={styles.sortableHeader}
@@ -156,7 +164,7 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
                     sortColumn("pitchCount");
                   }}
                 >
-                  Pitches
+                  Pitches {getSortIcon("pitchCount", sortedColumn, sortDirection)}
                 </Th>
                 <Th
                   className={styles.sortableHeader}
@@ -164,7 +172,7 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
                     sortColumn("stuffPlus");
                   }}
                 >
-                  Stuff+
+                  Stuff+ {getSortIcon("stuffPlus", sortedColumn, sortDirection)}
                 </Th>
                 <Th
                   className={styles.sortableHeader}
@@ -172,7 +180,7 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
                     sortColumn("locationPlus");
                   }}
                 >
-                  Location+
+                  Location+ {getSortIcon("locationPlus", sortedColumn, sortDirection)}
                 </Th>
                 <Th
                   className={styles.sortableHeader}
@@ -180,7 +188,7 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
                     sortColumn("pitchingPlus");
                   }}
                 >
-                  Pitching+
+                  Pitching+ {getSortIcon("pitchingPlus", sortedColumn, sortDirection)}
                 </Th>
               </Tr>
             </Thead>

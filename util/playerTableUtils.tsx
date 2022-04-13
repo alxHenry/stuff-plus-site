@@ -1,4 +1,6 @@
-import { PlayerColumn, PlayerData } from "../pages";
+import { ReactElement } from "react";
+import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { PlayerColumn, PlayerData, SortDirection } from "../pages";
 
 const MAX_RGB_VALUE = 255;
 const MAX_GRADIENT_SCORE_VALUE = 150;
@@ -52,4 +54,16 @@ export const columnToSortComparatorMap: Record<PlayerColumn, PlayerComparator> =
   stuffPlus: stuffPlusComparator,
   locationPlus: locationPlusComparator,
   pitchingPlus: pitchingPlusComparator,
+};
+
+export const getSortIcon = (
+  column: PlayerColumn,
+  currentSortedColumn: PlayerColumn | undefined,
+  sortDirection: SortDirection | undefined
+) => {
+  if (currentSortedColumn !== column) {
+    return null;
+  }
+
+  return sortDirection === "ascending" ? <ChevronUpIcon /> : <ChevronDownIcon />;
 };

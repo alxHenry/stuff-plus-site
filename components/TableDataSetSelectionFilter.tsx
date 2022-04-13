@@ -1,4 +1,4 @@
-import { ArrowDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import { HStack, Select, Text } from "@chakra-ui/react";
 import { FC } from "react";
 import { PlayerDataSet } from "../pages";
@@ -23,7 +23,7 @@ const TableDataSetSelectionFilter: FC<Props> = ({ playerDataSets, onSelection })
         Data set:
       </Text>
       <Select
-        icon={<ArrowDownIcon />}
+        icon={<ChevronDownIcon />}
         onChange={(selection) => {
           const selectedIndex = parseInt(selection.currentTarget.value as string, 10);
           onSelection(selectedIndex);
