@@ -218,19 +218,23 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
 
   await doc.loadInfo();
   const lastSeasonSheet = doc.sheetsByTitle["End of Season Stuff+/Location+"];
+  const springTrainingSheet = doc.sheetsByTitle["Spring Training 2022 (thru 4/5)"];
   const currentSheet = doc.sheetsByIndex[0];
 
-  const [currentRows, lastSeasonRows] = await Promise.all([
+  const [currentRows, springTrainingRows, lastSeasonRows] = await Promise.all([
     currentSheet.getRows({ limit: 600, offset: 0 }),
+    springTrainingSheet.getRows({ limit: 600, offset: 0 }),
     lastSeasonSheet.getRows({ limit: 600, offset: 0 }),
   ]);
 
   const currentPlayerData = currentRows.map(sheetRowToPlayerData);
+  const sptringTrainingData = springTrainingRows.map(sheetRowToPlayerData);
   const lastSeasonPlayerData = lastSeasonRows.map(sheetRowToPlayerData);
 
   return {
     playerDataSets: [
       { title: currentSheet.title, data: currentPlayerData },
+      { title: springTrainingSheet.title, data: sptringTrainingData },
       { title: lastSeasonSheet.title, data: lastSeasonPlayerData },
     ],
   };
