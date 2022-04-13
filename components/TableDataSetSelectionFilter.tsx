@@ -1,5 +1,5 @@
 import { ArrowDownIcon } from "@chakra-ui/icons";
-import { Select } from "@chakra-ui/react";
+import { HStack, Select, Text } from "@chakra-ui/react";
 import { FC } from "react";
 import { PlayerDataSet } from "../pages";
 
@@ -18,15 +18,20 @@ const TableDataSetSelectionFilter: FC<Props> = ({ playerDataSets, onSelection })
   });
 
   return (
-    <Select
-      icon={<ArrowDownIcon />}
-      onChange={(selection) => {
-        const selectedIndex = parseInt(selection.currentTarget.value as string, 10);
-        onSelection(selectedIndex);
-      }}
-    >
-      {selectOptions}
-    </Select>
+    <HStack>
+      <Text textAlign="right" minWidth="80px">
+        Data set:
+      </Text>
+      <Select
+        icon={<ArrowDownIcon />}
+        onChange={(selection) => {
+          const selectedIndex = parseInt(selection.currentTarget.value as string, 10);
+          onSelection(selectedIndex);
+        }}
+      >
+        {selectOptions}
+      </Select>
+    </HStack>
   );
 };
 
