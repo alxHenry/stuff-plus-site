@@ -2,6 +2,7 @@ import { TableContainer, Table, Thead, Tr, Th, Tbody, Td } from "@chakra-ui/reac
 import { FC } from "react";
 import { Column, useTable } from "react-table";
 import { PlayerData } from "../pages";
+import { getCellColorStyling } from "../util/playerTableUtils";
 
 interface Props {
   readonly playersData: PlayerData[];
@@ -59,7 +60,12 @@ const ReactTablePlayerTable: FC<Props> = ({ playersData }) => {
                 {row.cells.map((cell) => {
                   return (
                     // eslint-disable-next-line react/jsx-key
-                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                    <Td
+                      {...cell.getCellProps()}
+                      {...getCellColorStyling({ columnId: cell.column.id, value: cell.value })}
+                    >
+                      {cell.render("Cell")}
+                    </Td>
                   );
                 })}
               </Tr>

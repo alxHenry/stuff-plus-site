@@ -67,3 +67,20 @@ export const getSortIcon = (
 
   return sortDirection === "ascending" ? <ChevronUpIcon /> : <ChevronDownIcon />;
 };
+
+interface GetCellColorStylingArgs {
+  columnId: string;
+  value: any;
+}
+
+const coloredColumnIds = ["stuffPlus", "locationPlus", "pitchingPlus"];
+
+export const getCellColorStyling = ({ columnId, value }: GetCellColorStylingArgs) => {
+  if (coloredColumnIds.indexOf(columnId) === -1) {
+    return {};
+  }
+
+  return {
+    backgroundColor: pitchScoreToColorGradient(value),
+  };
+};
