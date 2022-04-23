@@ -24,6 +24,7 @@ import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import { columnToSortComparatorMap, getSortIcon } from "../util/playerTableUtils";
+import ReactTablePlayerTable from "../components/ReactTablePlayerTable";
 
 const TWELVE_HOURS_IN_SECONDS = 43200;
 
@@ -147,6 +148,9 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
             <TableMinimumPitchesFilter onSelection={filterByPitchMinimum} />
           </Stack>
         </Center>
+
+        <ReactTablePlayerTable playersData={originalPlayerDataSets[0].data} />
+
         <TableContainer>
           <Table>
             <Thead>
