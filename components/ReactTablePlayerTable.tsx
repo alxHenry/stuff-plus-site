@@ -1,6 +1,6 @@
 import { TableContainer, Table, Thead, Tr, Th, Tbody, Td } from "@chakra-ui/react";
 import { FC } from "react";
-import { Column, useTable } from "react-table";
+import { Column, useSortBy, useTable } from "react-table";
 import { PlayerData } from "../pages";
 import { getCellColorStyling } from "../util/playerTableUtils";
 
@@ -32,10 +32,13 @@ const columnsDefinition: Column<PlayerData>[] = [
 ];
 
 const ReactTablePlayerTable: FC<Props> = ({ playersData }) => {
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
-    columns: columnsDefinition,
-    data: playersData,
-  });
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+    {
+      columns: columnsDefinition,
+      data: playersData,
+    },
+    useSortBy
+  );
 
   return (
     <TableContainer>
@@ -46,7 +49,16 @@ const ReactTablePlayerTable: FC<Props> = ({ playersData }) => {
             <Tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
                 // eslint-disable-next-line react/jsx-key
-                <Th {...column.getHeaderProps()}>{column.render("Header")}</Th>
+                <Th {...column.getHeaderProps((column as unknown as any).getSortByToggleProps())}>
+                  {column.render("Header")}
+                  <span>
+                    {(column as unknown as any).isSorted
+                      ? (column as unknown as any).isSortedDesc
+                        ? " 🔽"
+                        : " 🔼"
+                      : ""}
+                  </span>
+                </Th>
               ))}
             </Tr>
           ))}
