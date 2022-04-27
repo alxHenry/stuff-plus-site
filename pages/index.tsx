@@ -149,7 +149,7 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
           </Stack>
         </Center>
 
-        <ReactTablePlayerTable playersData={originalPlayerDataSets[0].data} />
+        <ReactTablePlayerTable playersData={originalPlayerDataSets[selectedDataSetIndex].data} />
 
         <TableContainer>
           <Table>
