@@ -29,6 +29,7 @@ const TWELVE_HOURS_IN_SECONDS = 43200;
 
 export interface PlayerData {
   name: string;
+  handedness: string;
   mlbId: string;
   pitchCount: number;
   stuffPlus: number;

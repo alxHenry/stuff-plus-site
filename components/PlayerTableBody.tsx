@@ -11,7 +11,9 @@ const PlayerTableBody: FunctionComponent<Props> = ({ sortedPlayerData }) => {
   const playerRows = sortedPlayerData.map((player) => {
     return (
       <Tr key={player.mlbId}>
-        <Td>{player.name}</Td>
+        <Td>
+          {player.name}, {player.handedness}
+        </Td>
         <Td>{player.pitchCount}</Td>
         <Td backgroundColor={pitchScoreToColorGradient(player.stuffPlus)}>{player.stuffPlus}</Td>
         <Td backgroundColor={pitchScoreToColorGradient(player.locationPlus)}>{player.locationPlus}</Td>
