@@ -25,7 +25,7 @@ import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilt
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import { columnToSortComparatorMap, getSortIcon } from "../util/playerTableUtils";
 
-const TWELVE_HOURS_IN_SECONDS = 43200;
+export const TWELVE_HOURS_IN_SECONDS = 43200;
 
 export interface PlayerData {
   name: string;
