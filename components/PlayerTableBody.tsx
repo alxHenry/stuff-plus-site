@@ -1,6 +1,7 @@
 import { Td, Tr } from "@chakra-ui/react";
 import { FunctionComponent } from "react";
 import { PlayerData } from "../pages";
+import { stuffPlusColorizerConfig } from "../util/mlb";
 import { pitchScoreToColorGradient } from "../util/playerTableUtils";
 
 interface Props {
@@ -15,9 +16,15 @@ const PlayerTableBody: FunctionComponent<Props> = ({ sortedPlayerData }) => {
           {player.name}, {player.handedness}
         </Td>
         <Td>{player.pitchCount}</Td>
-        <Td backgroundColor={pitchScoreToColorGradient(player.stuffPlus)}>{player.stuffPlus}</Td>
-        <Td backgroundColor={pitchScoreToColorGradient(player.locationPlus)}>{player.locationPlus}</Td>
-        <Td backgroundColor={pitchScoreToColorGradient(player.pitchingPlus)}>{player.pitchingPlus}</Td>
+        <Td backgroundColor={pitchScoreToColorGradient(player.stuffPlus, stuffPlusColorizerConfig)}>
+          {player.stuffPlus}
+        </Td>
+        <Td backgroundColor={pitchScoreToColorGradient(player.locationPlus, stuffPlusColorizerConfig)}>
+          {player.locationPlus}
+        </Td>
+        <Td backgroundColor={pitchScoreToColorGradient(player.pitchingPlus, stuffPlusColorizerConfig)}>
+          {player.pitchingPlus}
+        </Td>
       </Tr>
     );
   });

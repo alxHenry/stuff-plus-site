@@ -1,3 +1,5 @@
+import type { ColorizerConfig } from "./playerTableUtils";
+
 export const mlbTeamNameToAbbrev: Record<string, string> = {
   Angels: "LAA",
   Astros: "HOU",
@@ -29,4 +31,16 @@ export const mlbTeamNameToAbbrev: Record<string, string> = {
   Twins: "MIN",
   "White Sox": "CWS",
   Yankees: "NYY",
+};
+
+export const stuffPlusColorizerConfig: ColorizerConfig = {
+  baseline: 100,
+  max: 150,
+  min: 50,
+};
+
+export const wOBAColorizerConfig: ColorizerConfig = {
+  baseline: 0.31,
+  max: 0.365,
+  min: 0.255,
 };

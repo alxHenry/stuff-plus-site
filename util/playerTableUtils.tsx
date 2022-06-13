@@ -1,31 +1,34 @@
-import { ReactElement } from "react";
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import { PlayerColumn, PlayerData, SortDirection } from "../pages";
 
 const MAX_RGB_VALUE = 255;
-const MAX_GRADIENT_SCORE_VALUE = 150;
-const MIN_GRADIENT_SCORE_VALUE = 50;
-const BASELINE = 100;
 
-const POSITIVE_GRADIENT_RANGE_MULTIPLE = MAX_GRADIENT_SCORE_VALUE - BASELINE;
-const NEGATIVE_GRADIENT_RANGE_MULTIPLE = BASELINE - MIN_GRADIENT_SCORE_VALUE;
+export interface ColorizerConfig {
+  max: number;
+  baseline: number;
+  min: number;
+}
 
-export const pitchScoreToColorGradient = (score: number): string => {
-  const isPositive = score >= BASELINE;
+export const pitchScoreToColorGradient = (score: number, config: ColorizerConfig): string => {
+  const isPositive = score >= config.baseline;
 
-  return isPositive ? positiveScoreToColor(score) : negativeScoreToColor(score);
+  return isPositive ? positiveScoreToColor(score, config) : negativeScoreToColor(score, config);
 };
 
-const positiveScoreToColor = (score: number): string => {
-  const amountAboveBaseline = score - BASELINE;
-  const redAndBlueValue = MAX_RGB_VALUE - amountAboveBaseline * (MAX_RGB_VALUE / POSITIVE_GRADIENT_RANGE_MULTIPLE);
+const positiveScoreToColor = (score: number, config: ColorizerConfig): string => {
+  const amountAboveBaseline = score - config.baseline;
+  const positiveGradientRangeMultiple = config.max - config.baseline;
+
+  const redAndBlueValue = MAX_RGB_VALUE - amountAboveBaseline * (MAX_RGB_VALUE / positiveGradientRangeMultiple);
 
   return `rgb(${redAndBlueValue}, ${MAX_RGB_VALUE}, ${redAndBlueValue})`;
 };
 
-const negativeScoreToColor = (score: number): string => {
-  const amountBelowBaseline = BASELINE - score;
-  const greenAndBlueValue = MAX_RGB_VALUE - amountBelowBaseline * (MAX_RGB_VALUE / NEGATIVE_GRADIENT_RANGE_MULTIPLE);
+const negativeScoreToColor = (score: number, config: ColorizerConfig): string => {
+  const amountBelowBaseline = config.baseline - score;
+  const negativeGradientRangeMultiple = config.baseline - config.min;
+
+  const greenAndBlueValue = MAX_RGB_VALUE - amountBelowBaseline * (MAX_RGB_VALUE / negativeGradientRangeMultiple);
 
   return `rgb(${MAX_RGB_VALUE}, ${greenAndBlueValue}, ${greenAndBlueValue})`;
 };

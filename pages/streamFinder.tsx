@@ -4,8 +4,9 @@ import { NextPage } from "next/types";
 import { PlayerData } from ".";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import * as cheerio from "cheerio";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
-import { mlbTeamNameToAbbrev } from "../util/mlb";
+import { TableContainer, Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import { mlbTeamNameToAbbrev, stuffPlusColorizerConfig, wOBAColorizerConfig } from "../util/mlb";
+import { pitchScoreToColorGradient } from "../util/playerTableUtils";
 
 export const ONE_HOUR_IN_SECONDS = 3600;
 
@@ -26,29 +27,33 @@ interface ProbableStarter {
 }
 
 const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
-  console.log(streamFinderData);
-
   const bodyElements = streamFinderData.map((data) => {
     return (
       <Tr key={`${data.name},${data.pitchingPlus}`}>
         <Td>{data.name}</Td>
-        <Td>{data.wOBAAgainstHandSplit}</Td>
-        <Td>{data.pitchingPlus}</Td>
+        <Td backgroundColor={pitchScoreToColorGradient(data.wOBAAgainstHandSplit, wOBAColorizerConfig)}>
+          {data.wOBAAgainstHandSplit}
+        </Td>
+        <Td backgroundColor={pitchScoreToColorGradient(data.pitchingPlus, stuffPlusColorizerConfig)}>
+          {data.pitchingPlus}
+        </Td>
       </Tr>
     );
   });
 
   return (
-    <Table>
-      <Thead>
-        <Tr>
-          <Th>Name</Th>
-          <Th>wOBA vs Hand</Th>
-          <Th>Pitching+</Th>
-        </Tr>
-      </Thead>
-      <Tbody>{bodyElements}</Tbody>
-    </Table>
+    <TableContainer>
+      <Table>
+        <Thead>
+          <Tr>
+            <Th>Name</Th>
+            <Th>wOBA vs Hand</Th>
+            <Th>Pitching+</Th>
+          </Tr>
+        </Thead>
+        <Tbody>{bodyElements}</Tbody>
+      </Table>
+    </TableContainer>
   );
 };
 
