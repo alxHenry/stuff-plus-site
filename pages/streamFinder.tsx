@@ -1,13 +1,16 @@
 import axios from "axios";
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { NextPage } from "next/types";
-import { PlayerData, TWELVE_HOURS_IN_SECONDS } from ".";
+import { PlayerData } from ".";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import * as cheerio from "cheerio";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import { mlbTeamNameToAbbrev } from "../util/mlb";
+
+export const ONE_HOUR_IN_SECONDS = 3600;
 
 interface Props {
-  readonly stuffPlusPlayerData: PlayerData[];
-  readonly wOBASplitsData: WOBASplitsData;
+  readonly streamFinderData: StreamFinderPitcherData[];
 }
 
 interface WOBASplitData {
@@ -16,8 +19,37 @@ interface WOBASplitData {
 }
 type WOBASplitsData = Record<string, WOBASplitData>;
 
-const StreamFinder: NextPage<Props> = ({ stuffPlusPlayerData, wOBASplitsData }) => {
-  return <div>Test</div>;
+interface ProbableStarter {
+  name: string;
+  team: string;
+  opposingTeam: string;
+}
+
+const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
+  console.log(streamFinderData);
+
+  const bodyElements = streamFinderData.map((data) => {
+    return (
+      <Tr key={`${data.name},${data.pitchingPlus}`}>
+        <Td>{data.name}</Td>
+        <Td>{data.wOBAAgainstHandSplit}</Td>
+        <Td>{data.pitchingPlus}</Td>
+      </Tr>
+    );
+  });
+
+  return (
+    <Table>
+      <Thead>
+        <Tr>
+          <Th>Name</Th>
+          <Th>wOBA vs Hand</Th>
+          <Th>Pitching+</Th>
+        </Tr>
+      </Thead>
+      <Tbody>{bodyElements}</Tbody>
+    </Table>
+  );
 };
 
 const fetchStuffPlusGoogleDocCurrentSeasonData = async (): Promise<PlayerData[]> => {
@@ -83,15 +115,67 @@ const fetchBaseballSavantWOBASplits = async (): Promise<WOBASplitsData> => {
   }, {});
 };
 
+const fetchProbableStarters = async (): Promise<ProbableStarter[]> => {
+  const mlbProbableStartersUrl = "https://www.mlb.com/probable-pitchers";
+  const request = await axios.get<string>(mlbProbableStartersUrl);
+
+  const probableStarters: ProbableStarter[] = [];
+  const $mlb = cheerio.load(request.data);
+  $mlb(".probable-pitchers__matchup").each((_index, elem) => {
+    const $ = cheerio.load(elem);
+    const awayTeamName = $(".probable-pitchers__team-name--away").text().trim();
+    const homeTeamName = $(".probable-pitchers__team-name--home").text().trim();
+
+    const $pitcherNames = $(".probable-pitchers__pitcher-name-link");
+    const awayPitcherName = $pitcherNames.eq(0).text().trim();
+    const homePitcherName = $pitcherNames.eq(1).text().trim();
+
+    probableStarters.push(
+      { name: awayPitcherName, team: awayTeamName, opposingTeam: homeTeamName },
+      { name: homePitcherName, team: homeTeamName, opposingTeam: awayTeamName }
+    );
+  });
+
+  return probableStarters;
+};
+
+interface StreamFinderPitcherData {
+  readonly name: string;
+  readonly wOBAAgainstHandSplit: number;
+  readonly pitchingPlus: number;
+}
+
 export const getStaticProps = async () => {
-  const dataRequests = await Promise.all([fetchStuffPlusGoogleDocCurrentSeasonData(), fetchBaseballSavantWOBASplits()]);
+  const [stuffPlusData, wOBASplits, probableStarters] = await Promise.all([
+    fetchStuffPlusGoogleDocCurrentSeasonData(),
+    fetchBaseballSavantWOBASplits(),
+    fetchProbableStarters(),
+  ]);
+
+  const streamFinderData = probableStarters.reduce<StreamFinderPitcherData[]>((results, probableStarter) => {
+    // TODO: Convert the stuff data to a map so we can lookup isntead of iterating
+    const pitcherStuffData = stuffPlusData.find((data) => data.name === probableStarter.name);
+    if (pitcherStuffData?.pitchingPlus == null || pitcherStuffData?.handedness == null) {
+      return results;
+    }
+
+    const opposingTeamAbbrev = mlbTeamNameToAbbrev[probableStarter.opposingTeam];
+    const teamSplits = wOBASplits[opposingTeamAbbrev];
+    const wOBAAgainstHandSplit = pitcherStuffData.handedness === "R" ? teamSplits.vsR : teamSplits.vsL;
+
+    results.push({
+      name: probableStarter.name,
+      pitchingPlus: pitcherStuffData.pitchingPlus,
+      wOBAAgainstHandSplit,
+    });
+    return results;
+  }, []);
 
   return {
     props: {
-      stuffPlusPlayerData: dataRequests[0],
-      wOBASplitsData: dataRequests[1],
+      streamFinderData,
     },
-    revalidate: TWELVE_HOURS_IN_SECONDS, // Check for source sheet updates every 12 hours when requests come in
+    revalidate: ONE_HOUR_IN_SECONDS, // Check for source sheet updates every 12 hours when requests come in
   };
 };
 
