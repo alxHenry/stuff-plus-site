@@ -8,6 +8,7 @@ import {
   Box,
   Center,
   Heading,
+  HStack,
   Link as ChakraLink,
   Stack,
   Table,
@@ -24,6 +25,7 @@ import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import { columnToSortComparatorMap, getSortIcon } from "../util/playerTableUtils";
+import Link from "next/link";
 
 export const TWELVE_HOURS_IN_SECONDS = 43200;
 
@@ -131,11 +133,20 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
       <StuffPlusInfoModal closeModal={closeInfoModal} isOpen={isInfoModalOpen} />
       <Stack spacing={4}>
         <Box backgroundColor="teal.500" padding={2}>
-          <ChakraLink onClick={openInfoModal} color="white">
-            <Text fontWeight={600} size="lg">
-              What is Stuff+
-            </Text>
-          </ChakraLink>
+          <HStack>
+            <ChakraLink onClick={openInfoModal} color="white">
+              <Text fontWeight={600} size="lg">
+                What is Stuff+
+              </Text>
+            </ChakraLink>
+            <Link href="/streamFinder" passHref>
+              <ChakraLink color="white">
+                <Text fontWeight={600} size="lg">
+                  Stream Finder
+                </Text>
+              </ChakraLink>
+            </Link>
+          </HStack>
         </Box>
         <Center>
           <Heading as="h1" size="lg" isTruncated>
