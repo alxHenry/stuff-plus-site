@@ -2,42 +2,95 @@ import { Tr, Td, TableContainer, Table, Thead, Th, Tbody } from "@chakra-ui/reac
 import { FC } from "react";
 import { StreamFinderPitcherData } from "../pages/streamFinder";
 import { wOBAColorizerConfig, stuffPlusColorizerConfig, streamScoreColorizerConfig } from "../util/mlb";
-import { pitchScoreToColorGradient } from "../util/playerTableUtils";
+import { ColorizerConfig, pitchScoreToColorGradient } from "../util/playerTableUtils";
+import { useSortBy, useTable } from "react-table";
 
 interface Props {
   streamFinderData: StreamFinderPitcherData[];
 }
 
+const tableKeyToColorizerConfig: Record<string, ColorizerConfig | null> = {
+  name: null,
+  pitchingPlus: stuffPlusColorizerConfig,
+  streamScore: streamScoreColorizerConfig,
+  wOBAAgainstHandSplit: wOBAColorizerConfig,
+};
+
+const reactTableColumnDefinitions = [
+  {
+    Header: "Name",
+    accessor: "name",
+  },
+  {
+    Header: "Opp. wOBA vs Hand",
+    accessor: "wOBAAgainstHandSplit",
+  },
+  {
+    Header: "Pitching+",
+    accessor: "pitchingPlus",
+  },
+  {
+    Header: "Stream Score",
+    accessor: "streamScore",
+  },
+] as unknown as any;
+
 const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
-  const bodyElements = streamFinderData.map((data) => {
+  console.log(streamFinderData);
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+    {
+      columns: reactTableColumnDefinitions,
+      data: streamFinderData,
+    },
+    useSortBy
+  );
+
+  const headerContent = headerGroups.map((headerGroup) => {
     return (
-      <Tr key={`${data.name},${data.pitchingPlus}`}>
-        <Td>{data.name}</Td>
-        <Td backgroundColor={pitchScoreToColorGradient(data.wOBAAgainstHandSplit, wOBAColorizerConfig)}>
-          {data.wOBAAgainstHandSplit.toFixed(3)}
-        </Td>
-        <Td backgroundColor={pitchScoreToColorGradient(data.pitchingPlus, stuffPlusColorizerConfig)}>
-          {data.pitchingPlus}
-        </Td>
-        <Td backgroundColor={pitchScoreToColorGradient(data.streamScore, streamScoreColorizerConfig)}>
-          {data.streamScore.toFixed(2)}
-        </Td>
+      // eslint-disable-next-line react/jsx-key
+      <Tr {...headerGroup.getHeaderGroupProps()}>
+        {headerGroup.headers.map((column) => {
+          const untypedColumn = column as unknown as any; // The definitely typed does not support sorting
+
+          return (
+            // eslint-disable-next-line react/jsx-key
+            <Th {...column.getHeaderProps(untypedColumn.getSortByToggleProps())}>
+              {column.render("Header")}
+              <span>{untypedColumn.isSorted ? (untypedColumn.isSortedDesc ? " 🔽" : " 🔼") : ""}</span>
+            </Th>
+          );
+        })}
+      </Tr>
+    );
+  });
+
+  const bodyContent = rows.map((row) => {
+    prepareRow(row);
+    return (
+      // eslint-disable-next-line react/jsx-key
+      <Tr {...row.getRowProps()}>
+        {row.cells.map((cell) => {
+          const colorizerConfig = tableKeyToColorizerConfig[cell.column.id];
+
+          return (
+            // eslint-disable-next-line react/jsx-key
+            <Td
+              {...cell.getCellProps()}
+              backgroundColor={!!colorizerConfig ? pitchScoreToColorGradient(cell.value, colorizerConfig) : undefined}
+            >
+              {cell.render("Cell")}
+            </Td>
+          );
+        })}
       </Tr>
     );
   });
 
   return (
     <TableContainer>
-      <Table>
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            <Th>wOBA vs Hand</Th>
-            <Th>Pitching+</Th>
-            <Th>Stream Score</Th>
-          </Tr>
-        </Thead>
-        <Tbody>{bodyElements}</Tbody>
+      <Table {...getTableProps}>
+        <Thead>{headerContent}</Thead>
+        <Tbody {...getTableBodyProps}>{bodyContent}</Tbody>
       </Table>
     </TableContainer>
   );
