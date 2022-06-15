@@ -36,7 +36,6 @@ const reactTableColumnDefinitions = [
 ] as unknown as any;
 
 const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
-  console.log(streamFinderData);
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns: reactTableColumnDefinitions,
