@@ -39,6 +39,12 @@ export const stuffPlusColorizerConfig: ColorizerConfig = {
   min: 50,
 };
 
+export const streamScoreColorizerConfig: ColorizerConfig = {
+  baseline: 100,
+  max: 110,
+  min: 90,
+};
+
 export const wOBAColorizerConfig: ColorizerConfig = {
   baseline: 0.31,
   max: 0.365,

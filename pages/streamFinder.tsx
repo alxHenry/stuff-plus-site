@@ -10,6 +10,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import StreamFinderTable from "../components/StreamFinderTable";
 import { useState } from "react";
 import Head from "next/head";
+import { generateStreamScore } from "../util/statistics";
 
 export const ONE_HOUR_IN_SECONDS = 3600;
 
@@ -189,10 +190,14 @@ interface StreamFinderDay {
   readonly dateHeadline: string;
 }
 
-export interface StreamFinderPitcherData {
+export interface StreamFinderBasePitcherData {
   readonly name: string;
   readonly wOBAAgainstHandSplit: number;
   readonly pitchingPlus: number;
+}
+
+export interface StreamFinderPitcherData extends StreamFinderBasePitcherData {
+  readonly streamScore: number;
 }
 
 export const fetchStreamFinderData = async (): Promise<StreamFinderDay[]> => {
@@ -224,10 +229,15 @@ const combineStreamFinderData = (
     const teamSplits = wOBASplits[opposingTeamAbbrev];
     const wOBAAgainstHandSplit = pitcherStuffData.handedness === "R" ? teamSplits.vsR : teamSplits.vsL;
 
-    results.push({
+    const baseData: StreamFinderBasePitcherData = {
       name: probableStarter.name,
       pitchingPlus: pitcherStuffData.pitchingPlus,
       wOBAAgainstHandSplit,
+    };
+
+    results.push({
+      ...baseData,
+      streamScore: generateStreamScore(baseData),
     });
 
     return results;
