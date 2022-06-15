@@ -1,5 +1,4 @@
-import { ArrowRightIcon } from "@chakra-ui/icons";
-import { Tr, Td, TableContainer, IconButton, Table, Thead, Th, Tbody } from "@chakra-ui/react";
+import { Tr, Td, TableContainer, Table, Thead, Th, Tbody } from "@chakra-ui/react";
 import { FC } from "react";
 import { StreamFinderPitcherData } from "../pages/streamFinder";
 import { wOBAColorizerConfig, stuffPlusColorizerConfig, streamScoreColorizerConfig } from "../util/mlb";
