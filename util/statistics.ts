@@ -1,8 +1,8 @@
 import { StreamFinderBasePitcherData } from "../pages/streamFinder";
 import { stuffPlusColorizerConfig, wOBAColorizerConfig } from "./mlb";
 
-const QUALITY_WEIGHT = 0.6;
-const MATCHUP_WEIGHT = 0.4;
+const QUALITY_WEIGHT = 0.7;
+const MATCHUP_WEIGHT = 0.3;
 
 export const generateStreamScore = (pitcherData: StreamFinderBasePitcherData) => {
   const qualityScore = generatePitcherQualityScore(pitcherData);
