@@ -9,6 +9,7 @@ import { mlbTeamNameToAbbrev } from "../util/mlb";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import StreamFinderTable from "../components/StreamFinderTable";
 import { useState } from "react";
+import Head from "next/head";
 
 export const ONE_HOUR_IN_SECONDS = 3600;
 
@@ -43,17 +44,23 @@ const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
   const table = showingToday ? todayTable : tomorrowTable;
 
   return (
-    <Box>
-      <IconButton
-        aria-label={showingToday ? "Show tomorrow data" : "Show yesterday data"}
-        icon={showingToday ? <ArrowRightIcon /> : <ArrowLeftIcon />}
-        onClick={() => {
-          setShowingToday((prev) => !prev);
-        }}
-      />
-      <Heading>{showingToday ? streamFinderData[0].dateHeadline : streamFinderData[1].dateHeadline}</Heading>
-      {table}
-    </Box>
+    <>
+      <Head>
+        <title>Stream Finder</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
+      <Box>
+        <IconButton
+          aria-label={showingToday ? "Show tomorrow data" : "Show yesterday data"}
+          icon={showingToday ? <ArrowRightIcon /> : <ArrowLeftIcon />}
+          onClick={() => {
+            setShowingToday((prev) => !prev);
+          }}
+        />
+        <Heading>{showingToday ? streamFinderData[0].dateHeadline : streamFinderData[1].dateHeadline}</Heading>
+        {table}
+      </Box>
+    </>
   );
 };
 
