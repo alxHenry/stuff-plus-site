@@ -45,7 +45,7 @@ const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
   return (
     <Box>
       <IconButton
-        aria-label="Show tomorrow data"
+        aria-label={showingToday ? "Show tomorrow data" : "Show yesterday data"}
         icon={showingToday ? <ArrowRightIcon /> : <ArrowLeftIcon />}
         onClick={() => {
           setShowingToday((prev) => !prev);
