@@ -4,14 +4,17 @@ import { NextPage } from "next/types";
 import { PlayerData } from ".";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import * as cheerio from "cheerio";
-import { TableContainer, Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
+import { TableContainer, Table, Tbody, Td, Th, Thead, Tr, IconButton, Box } from "@chakra-ui/react";
 import { mlbTeamNameToAbbrev, stuffPlusColorizerConfig, wOBAColorizerConfig } from "../util/mlb";
 import { pitchScoreToColorGradient } from "../util/playerTableUtils";
+import { ArrowRightIcon } from "@chakra-ui/icons";
+import StreamFinderTable from "../components/StreamFinderTable";
+import { useState } from "react";
 
 export const ONE_HOUR_IN_SECONDS = 3600;
 
-interface Props {
-  readonly streamFinderData: StreamFinderPitcherData[];
+export interface Props {
+  readonly streamFinderData: StreamFinderPitcherData[][];
 }
 
 interface WOBASplitData {
@@ -27,33 +30,25 @@ interface ProbableStarter {
 }
 
 const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
-  const bodyElements = streamFinderData.map((data) => {
-    return (
-      <Tr key={`${data.name},${data.pitchingPlus}`}>
-        <Td>{data.name}</Td>
-        <Td backgroundColor={pitchScoreToColorGradient(data.wOBAAgainstHandSplit, wOBAColorizerConfig)}>
-          {data.wOBAAgainstHandSplit}
-        </Td>
-        <Td backgroundColor={pitchScoreToColorGradient(data.pitchingPlus, stuffPlusColorizerConfig)}>
-          {data.pitchingPlus}
-        </Td>
-      </Tr>
-    );
-  });
+  const [showingToday, setShowingToday] = useState(true);
+
+  const todayData = streamFinderData[0];
+  const tomorrowData = streamFinderData[1];
+  const todayTable = <StreamFinderTable streamFinderData={todayData} />;
+  const tomorrowTable = <StreamFinderTable streamFinderData={tomorrowData} />;
+  const table = showingToday ? todayTable : tomorrowTable;
 
   return (
-    <TableContainer>
-      <Table>
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            <Th>wOBA vs Hand</Th>
-            <Th>Pitching+</Th>
-          </Tr>
-        </Thead>
-        <Tbody>{bodyElements}</Tbody>
-      </Table>
-    </TableContainer>
+    <Box>
+      <IconButton
+        aria-label="Show tomorrow data"
+        icon={<ArrowRightIcon />}
+        onClick={() => {
+          setShowingToday((prev) => !prev);
+        }}
+      />
+      {table}
+    </Box>
   );
 };
 
@@ -120,12 +115,28 @@ const fetchBaseballSavantWOBASplits = async (): Promise<WOBASplitsData> => {
   }, {});
 };
 
-const fetchProbableStarters = async (): Promise<ProbableStarter[]> => {
-  const mlbProbableStartersUrl = "https://www.mlb.com/probable-pitchers";
-  const request = await axios.get<string>(mlbProbableStartersUrl);
+const fetchProbableStarters = async (): Promise<ProbableStarter[][]> => {
+  let tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
+  const mlbProbableStartersUrl = "https://www.mlb.com/probable-pitchers";
+  const tomorrowFormatedDateString = tomorrow.toISOString().split("T")[0]; // ex: 2022-06-16
+  const tomorrowStartersUrl = `${mlbProbableStartersUrl}/${tomorrowFormatedDateString}`;
+
+  const requests = await Promise.all([
+    axios.get<string>(mlbProbableStartersUrl),
+    axios.get<string>(tomorrowStartersUrl),
+  ]);
+
+  const todayProbableStarters = parseProbableStarters(requests[0].data);
+  const tomorrowProbableStarters = parseProbableStarters(requests[1].data);
+
+  return [todayProbableStarters, tomorrowProbableStarters];
+};
+
+const parseProbableStarters = (html: string) => {
   const probableStarters: ProbableStarter[] = [];
-  const $mlb = cheerio.load(request.data);
+  const $mlb = cheerio.load(html);
   $mlb(".probable-pitchers__matchup").each((_index, elem) => {
     const $ = cheerio.load(elem);
     const awayTeamName = $(".probable-pitchers__team-name--away").text().trim();
@@ -144,20 +155,31 @@ const fetchProbableStarters = async (): Promise<ProbableStarter[]> => {
   return probableStarters;
 };
 
-interface StreamFinderPitcherData {
+export interface StreamFinderPitcherData {
   readonly name: string;
   readonly wOBAAgainstHandSplit: number;
   readonly pitchingPlus: number;
 }
 
-export const getStaticProps = async () => {
+export const fetchStreamFinderData = async (): Promise<StreamFinderPitcherData[][]> => {
   const [stuffPlusData, wOBASplits, probableStarters] = await Promise.all([
     fetchStuffPlusGoogleDocCurrentSeasonData(),
     fetchBaseballSavantWOBASplits(),
     fetchProbableStarters(),
   ]);
 
-  const streamFinderData = probableStarters.reduce<StreamFinderPitcherData[]>((results, probableStarter) => {
+  const today = combineStreamFinderData(stuffPlusData, wOBASplits, probableStarters[0]);
+  const tomorrow = combineStreamFinderData(stuffPlusData, wOBASplits, probableStarters[1]);
+
+  return [today, tomorrow];
+};
+
+const combineStreamFinderData = (
+  stuffPlusData: PlayerData[],
+  wOBASplits: WOBASplitsData,
+  probableStarters: ProbableStarter[]
+): StreamFinderPitcherData[] => {
+  return probableStarters.reduce<StreamFinderPitcherData[]>((results, probableStarter) => {
     // TODO: Convert the stuff data to a map so we can lookup isntead of iterating
     const pitcherStuffData = stuffPlusData.find((data) => data.name === probableStarter.name);
     if (pitcherStuffData?.pitchingPlus == null || pitcherStuffData?.handedness == null) {
@@ -173,14 +195,19 @@ export const getStaticProps = async () => {
       pitchingPlus: pitcherStuffData.pitchingPlus,
       wOBAAgainstHandSplit,
     });
+
     return results;
   }, []);
+};
+
+export const getStaticProps = async () => {
+  const streamFinderData = await fetchStreamFinderData();
 
   return {
     props: {
       streamFinderData,
     },
-    revalidate: ONE_HOUR_IN_SECONDS, // Check for source sheet updates every 12 hours when requests come in
+    revalidate: ONE_HOUR_IN_SECONDS,
   };
 };
 
