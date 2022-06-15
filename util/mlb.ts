@@ -6,10 +6,11 @@ export const mlbTeamNameToAbbrev: Record<string, string> = {
   Athletics: "OAK",
   "Blue Jays": "TOR",
   Braves: "ATL",
-  Brewrs: "MIL",
+  Brewers: "MIL",
   Cardinals: "STL",
   Cubs: "CHC",
   "D-backs": "ARI",
+  Diamondbacks: "ARI",
   Dodgers: "LAD",
   Giants: "SF",
   Guardians: "CLE",
@@ -33,6 +34,12 @@ export const mlbTeamNameToAbbrev: Record<string, string> = {
   Yankees: "NYY",
 };
 
+export const cityStateToAbbrev: Record<string, string> = {
+  "Cincinnati, Ohio": "CIN",
+  "Denver, Colorado": "COL",
+  "Chicago, Illinois": "",
+};
+
 export const stuffPlusColorizerConfig: ColorizerConfig = {
   baseline: 100,
   max: 150,
@@ -43,4 +50,10 @@ export const wOBAColorizerConfig: ColorizerConfig = {
   baseline: 0.31,
   max: 0.365,
   min: 0.255,
+};
+
+export const parkFactorColorizerConfig: ColorizerConfig = {
+  baseline: 100,
+  max: 120,
+  min: 90,
 };

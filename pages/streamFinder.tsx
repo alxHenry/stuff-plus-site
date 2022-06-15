@@ -5,7 +5,13 @@ import { PlayerData } from ".";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import * as cheerio from "cheerio";
 import { TableContainer, Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
-import { mlbTeamNameToAbbrev, stuffPlusColorizerConfig, wOBAColorizerConfig } from "../util/mlb";
+import {
+  cityStateToAbbrev,
+  mlbTeamNameToAbbrev,
+  parkFactorColorizerConfig,
+  stuffPlusColorizerConfig,
+  wOBAColorizerConfig,
+} from "../util/mlb";
 import { pitchScoreToColorGradient } from "../util/playerTableUtils";
 
 export const ONE_HOUR_IN_SECONDS = 3600;
@@ -21,6 +27,7 @@ interface WOBASplitData {
 type WOBASplitsData = Record<string, WOBASplitData>;
 
 interface ProbableStarter {
+  homeTeamName: string;
   name: string;
   team: string;
   opposingTeam: string;
@@ -37,6 +44,9 @@ const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
         <Td backgroundColor={pitchScoreToColorGradient(data.pitchingPlus, stuffPlusColorizerConfig)}>
           {data.pitchingPlus}
         </Td>
+        <Td backgroundColor={pitchScoreToColorGradient(data.pitchingPlus, parkFactorColorizerConfig)}>
+          {data.parkFactor}
+        </Td>
       </Tr>
     );
   });
@@ -49,6 +59,7 @@ const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
             <Th>Name</Th>
             <Th>wOBA vs Hand</Th>
             <Th>Pitching+</Th>
+            <Th>Park Factor</Th>
           </Tr>
         </Thead>
         <Tbody>{bodyElements}</Tbody>
@@ -136,25 +147,58 @@ const fetchProbableStarters = async (): Promise<ProbableStarter[]> => {
     const homePitcherName = $pitcherNames.eq(1).text().trim();
 
     probableStarters.push(
-      { name: awayPitcherName, team: awayTeamName, opposingTeam: homeTeamName },
-      { name: homePitcherName, team: homeTeamName, opposingTeam: awayTeamName }
+      { name: awayPitcherName, team: awayTeamName, opposingTeam: homeTeamName, homeTeamName: homeTeamName },
+      { name: homePitcherName, team: homeTeamName, opposingTeam: awayTeamName, homeTeamName: homeTeamName }
     );
   });
 
   return probableStarters;
 };
 
+type ParkFactors = Record<string, number>;
+const textInsideParenRegExp = /\(([^)]+)\)/;
+
+const fetchParkFactors = async (): Promise<ParkFactors> => {
+  const evAnalyticsParkFactors = "https://evanalytics.com/admin/model/datatableQuery.php";
+  const request = await axios.get<string>(evAnalyticsParkFactors);
+  debugger;
+  const data = JSON.parse(request.data);
+  const $mlb = cheerio.load(request.data);
+
+  const parkFactors: ParkFactors = {};
+  $mlb("#data-table tr.A").each((_index, elem) => {
+    const $row = cheerio.load(elem);
+    const $cells = $row("td");
+
+    const cityStateStringWithParens = $cells.eq(1).text().trim(); // ex: null(Cincinnati, Ohio)
+    const matches = textInsideParenRegExp.exec(cityStateStringWithParens);
+    if (matches == null) {
+      return;
+    }
+    const cityState = matches[1];
+
+    const parkFactor = $cells.eq(2).text().trim(); // ex: 1.470
+    const teamAbbrev = cityStateToAbbrev[cityState];
+
+    parkFactors[teamAbbrev] = parseInt(parkFactor, 10);
+  });
+
+  return parkFactors;
+};
+
 interface StreamFinderPitcherData {
   readonly name: string;
+  readonly parkFactor: number;
   readonly wOBAAgainstHandSplit: number;
   readonly pitchingPlus: number;
 }
 
 export const getStaticProps = async () => {
-  const [stuffPlusData, wOBASplits, probableStarters] = await Promise.all([
+  const [stuffPlusData, wOBASplits, probableStarters, parkFactors] = await Promise.all([
     fetchStuffPlusGoogleDocCurrentSeasonData(),
     fetchBaseballSavantWOBASplits(),
     fetchProbableStarters(),
+    fetchParkFactors(),
   ]);
 
   const streamFinderData = probableStarters.reduce<StreamFinderPitcherData[]>((results, probableStarter) => {
@@ -165,11 +209,14 @@ export const getStaticProps = async () => {
     }
 
     const opposingTeamAbbrev = mlbTeamNameToAbbrev[probableStarter.opposingTeam];
+    const homeTeamAbbrev = mlbTeamNameToAbbrev[probableStarter.homeTeamName];
     const teamSplits = wOBASplits[opposingTeamAbbrev];
     const wOBAAgainstHandSplit = pitcherStuffData.handedness === "R" ? teamSplits.vsR : teamSplits.vsL;
+    const parkFactor = parkFactors[homeTeamAbbrev];
 
     results.push({
       name: probableStarter.name,
+      parkFactor,
       pitchingPlus: pitcherStuffData.pitchingPlus,
       wOBAAgainstHandSplit,
     });
