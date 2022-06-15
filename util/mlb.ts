@@ -6,7 +6,7 @@ export const mlbTeamNameToAbbrev: Record<string, string> = {
   Athletics: "OAK",
   "Blue Jays": "TOR",
   Braves: "ATL",
-  Brewrs: "MIL",
+  Brewers: "MIL",
   Cardinals: "STL",
   Cubs: "CHC",
   "D-backs": "ARI",
