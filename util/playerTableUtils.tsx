@@ -7,6 +7,7 @@ export interface ColorizerConfig {
   max: number;
   baseline: number;
   min: number;
+  higherIsBetter?: boolean;
 }
 
 export const pitchScoreToColorGradient = (score: number, config: ColorizerConfig): string => {
@@ -15,22 +16,26 @@ export const pitchScoreToColorGradient = (score: number, config: ColorizerConfig
   return isPositive ? positiveScoreToColor(score, config) : negativeScoreToColor(score, config);
 };
 
-const positiveScoreToColor = (score: number, config: ColorizerConfig): string => {
-  const amountAboveBaseline = score - config.baseline;
-  const positiveGradientRangeMultiple = config.max - config.baseline;
+const positiveScoreToColor = (score: number, { baseline, max, higherIsBetter = true }: ColorizerConfig): string => {
+  const amountAboveBaseline = score - baseline;
+  const positiveGradientRangeMultiple = max - baseline;
 
-  const redAndBlueValue = MAX_RGB_VALUE - amountAboveBaseline * (MAX_RGB_VALUE / positiveGradientRangeMultiple);
+  const nonPrimaryColorValues = MAX_RGB_VALUE - amountAboveBaseline * (MAX_RGB_VALUE / positiveGradientRangeMultiple);
 
-  return `rgb(${redAndBlueValue}, ${MAX_RGB_VALUE}, ${redAndBlueValue})`;
+  return higherIsBetter
+    ? `rgb(${nonPrimaryColorValues}, ${MAX_RGB_VALUE}, ${nonPrimaryColorValues})`
+    : `rgb(${MAX_RGB_VALUE}, ${nonPrimaryColorValues}, ${nonPrimaryColorValues})`;
 };
 
-const negativeScoreToColor = (score: number, config: ColorizerConfig): string => {
-  const amountBelowBaseline = config.baseline - score;
-  const negativeGradientRangeMultiple = config.baseline - config.min;
+const negativeScoreToColor = (score: number, { baseline, min, higherIsBetter = true }: ColorizerConfig): string => {
+  const amountBelowBaseline = baseline - score;
+  const negativeGradientRangeMultiple = baseline - min;
 
-  const greenAndBlueValue = MAX_RGB_VALUE - amountBelowBaseline * (MAX_RGB_VALUE / negativeGradientRangeMultiple);
+  const nonPrimaryColorValues = MAX_RGB_VALUE - amountBelowBaseline * (MAX_RGB_VALUE / negativeGradientRangeMultiple);
 
-  return `rgb(${MAX_RGB_VALUE}, ${greenAndBlueValue}, ${greenAndBlueValue})`;
+  return higherIsBetter
+    ? `rgb(${MAX_RGB_VALUE}, ${nonPrimaryColorValues}, ${nonPrimaryColorValues})`
+    : `rgb(${nonPrimaryColorValues},${MAX_RGB_VALUE}, ${nonPrimaryColorValues})`;
 };
 
 const nameComparator = (playerA: PlayerData, playerB: PlayerData) => {

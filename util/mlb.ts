@@ -43,4 +43,5 @@ export const wOBAColorizerConfig: ColorizerConfig = {
   baseline: 0.31,
   max: 0.365,
   min: 0.255,
+  higherIsBetter: false,
 };
