@@ -143,7 +143,7 @@ const fetchProbableStarters = async (): Promise<ProbableStarterData[]> => {
       month: "2-digit",
       day: "2-digit",
     })
-    .replaceAll("/", "-"); // ex: 2022-06-15
+    .replace(/\//g, "-"); // ex: 2022-06-15
   const tomorrowHeadlineDate = formatHeadlineDate(tomorrow);
 
   const mlbProbableStartersUrl = "https://www.mlb.com/probable-pitchers";
