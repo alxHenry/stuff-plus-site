@@ -22,29 +22,19 @@ export const fetchStreamFinderData = async (): Promise<StreamFinderDay[]> => {
 };
 
 export const fetchProbableStarters = async (): Promise<ProbableStarterData[]> => {
-  let tomorrow = new Date();
-  const todayHeadlineDate = formatHeadlineDate(tomorrow);
+  const mlbProbableStartersUrl = "https://www.mlb.com/probable-pitchers";
 
+  const today = new Date();
+  const todayHeadlineDate = formatHeadlineDate(today);
+
+  const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow
-    .toLocaleDateString("zh-Hans-CN", {
-      // this locale does the proper ordering for mlb.com route param
-      timeZone: "America/Los_Angeles",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace(/\//g, "-"); // ex: 2022-06-15
   const tomorrowHeadlineDate = formatHeadlineDate(tomorrow);
 
-  const mlbProbableStartersUrl = "https://www.mlb.com/probable-pitchers";
-  const tomorrowFormatedDateString = tomorrow.toISOString().split("T")[0]; // ex: 2022-06-16
-  const tomorrowStartersUrl = `${mlbProbableStartersUrl}/${tomorrowFormatedDateString}`;
+  const todayStartersUrl = `${mlbProbableStartersUrl}/${formatMlbRouteParamDate(today)}`;
+  const tomorrowStartersUrl = `${mlbProbableStartersUrl}/${formatMlbRouteParamDate(tomorrow)}`;
 
-  const requests = await Promise.all([
-    axios.get<string>(mlbProbableStartersUrl),
-    axios.get<string>(tomorrowStartersUrl),
-  ]);
+  const requests = await Promise.all([axios.get<string>(todayStartersUrl), axios.get<string>(tomorrowStartersUrl)]);
 
   const todayProbableStarters = parseProbableStarters(requests[0].data);
   const tomorrowProbableStarters = parseProbableStarters(requests[1].data);
@@ -175,3 +165,15 @@ export const fetchBaseballSavantWOBASplits = async (): Promise<WOBASplitsData> =
 };
 
 const formatHeadlineDate = (date: Date) => `${date.getMonth() + 1}/${date.getDate()}`;
+
+const formatMlbRouteParamDate = (date: Date) => {
+  return date
+    .toLocaleDateString("zh-Hans-CN", {
+      // this locale does the proper ordering for mlb.com route param
+      timeZone: "America/Los_Angeles",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+    .replace(/\//g, "-"); // ex: 2022-06-15
+};
