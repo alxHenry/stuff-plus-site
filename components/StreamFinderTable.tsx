@@ -35,11 +35,15 @@ const reactTableColumnDefinitions = [
   },
 ] as unknown as any;
 
+// react-table types are missing sortBy and most initialState keys
+const reactTableInitialState = { sortBy: [{ id: "streamScore", desc: true }] } as unknown as any;
+
 const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns: reactTableColumnDefinitions,
       data: streamFinderData,
+      initialState: reactTableInitialState,
     },
     useSortBy
   );
