@@ -1,5 +1,5 @@
 import { NextPage } from "next/types";
-import { IconButton, Box, Heading } from "@chakra-ui/react";
+import { Box, Heading, Flex, Spacer, Button } from "@chakra-ui/react";
 import { ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import StreamFinderTable from "../components/StreamFinderTable";
 import { useState } from "react";
@@ -28,14 +28,22 @@ const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <Box>
-        <IconButton
-          aria-label={showingToday ? "Show tomorrow data" : "Show yesterday data"}
-          icon={showingToday ? <ArrowRightIcon /> : <ArrowLeftIcon />}
-          onClick={() => {
-            setShowingToday((prev) => !prev);
-          }}
-        />
-        <Heading>{showingToday ? streamFinderData[0].dateHeadline : streamFinderData[1].dateHeadline}</Heading>
+        <Flex justifyContent="middle">
+          <Heading margin={3}>
+            {showingToday ? streamFinderData[0].dateHeadline : streamFinderData[1].dateHeadline}
+          </Heading>
+          <Spacer />
+          <Button
+            colorScheme="teal"
+            rightIcon={showingToday ? <ArrowRightIcon /> : <ArrowLeftIcon />}
+            onClick={() => {
+              setShowingToday((prev) => !prev);
+            }}
+            margin={3}
+          >
+            {showingToday ? "Show tomorrow" : "Show yesterday"}
+          </Button>
+        </Flex>
         {table}
       </Box>
     </>
