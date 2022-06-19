@@ -95,15 +95,20 @@ export const combineStreamFinderData = (
     const qualityData = { pitchingPlus: pitcherStuffData.pitchingPlus, fip, siera };
     const matchupData = { wOBAAgainstHandSplit };
 
+    const quality = generatePitcherQualityScore(qualityData);
+    const matchup = generatePitcherMatchupScore(matchupData);
+
     results.push({
       name: probableStarter.name,
-      qualityScore: roundToTwoDecimalPlaces(generatePitcherQualityScore(qualityData)),
-      matchupScore: roundToTwoDecimalPlaces(generatePitcherMatchupScore(matchupData)),
+      qualityBreakdown: quality.breakdown,
+      qualityScore: roundToTwoDecimalPlaces(quality.score),
+      matchupBreakdown: matchup.breakdown,
+      matchupScore: roundToTwoDecimalPlaces(matchup.score),
       streamScore: roundToTwoDecimalPlaces(
         generateStreamScore({
           ...qualityData,
           ...matchupData,
-        })
+        }).score
       ),
     });
 

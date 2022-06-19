@@ -5,6 +5,7 @@ import StreamFinderTable from "../components/StreamFinderTable";
 import { useState } from "react";
 import Head from "next/head";
 import { fetchStreamFinderData } from "../fetching/streamFinderFetching";
+import { PitcherMatchupScoreData, PitcherQualityScoreData } from "../util/statistics";
 
 export const ONE_HOUR_IN_SECONDS = 3600;
 
@@ -65,7 +66,9 @@ export interface StreamFinderBasePitcherData {
 
 export interface StreamFinderPitcherData {
   readonly name: string;
+  readonly matchupBreakdown: PitcherMatchupScoreData;
   readonly matchupScore: number;
+  readonly qualityBreakdown: PitcherQualityScoreData;
   readonly qualityScore: number;
   readonly streamScore: number;
 }

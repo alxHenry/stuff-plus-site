@@ -6,11 +6,24 @@ const MATCHUP_WEIGHT = 0.4;
 
 export interface StreamScoreData extends PitcherQualityScoreData, PitcherMatchupScoreData {}
 
-export const generateStreamScore = ({ fip, siera, pitchingPlus, wOBAAgainstHandSplit }: StreamScoreData) => {
-  const qualityScore = generatePitcherQualityScore({ fip, siera, pitchingPlus });
-  const matchupScore = generatePitcherMatchupScore({ wOBAAgainstHandSplit });
+export const generateStreamScore = ({
+  fip,
+  siera,
+  pitchingPlus,
+  wOBAAgainstHandSplit,
+}: StreamScoreData): {
+  score: number;
+  qualityBreakdown: PitcherQualityScoreData;
+  matchupBreakdown: PitcherMatchupScoreData;
+} => {
+  const { score: qualityScore, breakdown: qualityBreakdown } = generatePitcherQualityScore({
+    fip,
+    siera,
+    pitchingPlus,
+  });
+  const { score: matchupScore, breakdown: matchupBreakdown } = generatePitcherMatchupScore({ wOBAAgainstHandSplit });
 
-  return qualityScore * QUALITY_WEIGHT + matchupScore * MATCHUP_WEIGHT;
+  return { score: qualityScore * QUALITY_WEIGHT + matchupScore * MATCHUP_WEIGHT, qualityBreakdown, matchupBreakdown };
 };
 
 export interface PitcherQualityScoreData {
@@ -20,7 +33,11 @@ export interface PitcherQualityScoreData {
 }
 
 // 50% Pitching+, 25% FIP, 25% SIERA = 100% quality
-export const generatePitcherQualityScore = ({ pitchingPlus, fip, siera }: PitcherQualityScoreData) => {
+export const generatePitcherQualityScore = ({
+  pitchingPlus,
+  fip,
+  siera,
+}: PitcherQualityScoreData): { score: number; breakdown: PitcherQualityScoreData } => {
   const baseline = stuffPlusColorizerConfig.baseline;
   const pitchingPlusRating = (pitchingPlus / baseline) * 100;
 
@@ -29,16 +46,26 @@ export const generatePitcherQualityScore = ({ pitchingPlus, fip, siera }: Pitche
 
   const pitcherQualityRating = pitchingPlusRating * 0.5 + fipRating * 0.25 + sieraRating * 0.25;
 
-  return pitcherQualityRating;
+  return {
+    score: pitcherQualityRating,
+    breakdown: { fip: fipRating, siera: sieraRating, pitchingPlus: pitchingPlusRating },
+  };
 };
 
 export interface PitcherMatchupScoreData {
   wOBAAgainstHandSplit: number;
 }
-
-export const generatePitcherMatchupScore = ({ wOBAAgainstHandSplit }: PitcherMatchupScoreData) => {
+// 100% wOBA of opponent vs handedness of pitcher
+export const generatePitcherMatchupScore = ({
+  wOBAAgainstHandSplit,
+}: PitcherMatchupScoreData): { score: number; breakdown: PitcherMatchupScoreData } => {
   const { baseline } = wOBAColorizerConfig;
   const pitcherMatchupRating = ((baseline - wOBAAgainstHandSplit + baseline) / baseline) * 100;
 
-  return pitcherMatchupRating;
+  return {
+    score: pitcherMatchupRating,
+    breakdown: {
+      wOBAAgainstHandSplit: pitcherMatchupRating,
+    },
+  };
 };
