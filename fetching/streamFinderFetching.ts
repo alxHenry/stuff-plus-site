@@ -10,7 +10,7 @@ import {
   NameToFangraphsPitcherData,
 } from "../types/streamFinder";
 import { LEAGUE_AVG_FIP, LEAGUE_AVG_SIERA, mlbTeamNameToAbbrev } from "../util/mlb";
-import { generatePitcherQualityScore, generateStreamScore } from "../util/statistics";
+import { generatePitcherMatchupScore, generatePitcherQualityScore, generateStreamScore } from "../util/statistics";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 
 export const fetchStreamFinderData = async (): Promise<StreamFinderDay[]> => {
@@ -92,21 +92,19 @@ export const combineStreamFinderData = (
     const teamSplits = wOBASplits[opposingTeamAbbrev];
     const wOBAAgainstHandSplit = pitcherStuffData.handedness === "R" ? teamSplits.vsR : teamSplits.vsL;
 
-    const baseData: StreamFinderBasePitcherData = {
-      name: probableStarter.name,
-      pitchingPlus: pitcherStuffData.pitchingPlus,
-      wOBAAgainstHandSplit,
-      fip,
-      siera,
-    };
+    const qualityData = { pitchingPlus: pitcherStuffData.pitchingPlus, fip, siera };
+    const matchupData = { wOBAAgainstHandSplit };
 
     results.push({
-      name: baseData.name,
-      qualityScore: roundToTwoDecimalPlaces(
-        generatePitcherQualityScore({ pitchingPlus: pitcherStuffData.pitchingPlus, fip, siera })
+      name: probableStarter.name,
+      qualityScore: roundToTwoDecimalPlaces(generatePitcherQualityScore(qualityData)),
+      matchupScore: roundToTwoDecimalPlaces(generatePitcherMatchupScore(matchupData)),
+      streamScore: roundToTwoDecimalPlaces(
+        generateStreamScore({
+          ...qualityData,
+          ...matchupData,
+        })
       ),
-      wOBAAgainstHandSplit,
-      streamScore: roundToTwoDecimalPlaces(generateStreamScore(baseData)),
     });
 
     return results;

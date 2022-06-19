@@ -2,10 +2,8 @@ import { Tr, Td, TableContainer, Table, Thead, Th, Tbody } from "@chakra-ui/reac
 import { FC } from "react";
 import { StreamFinderPitcherData } from "../pages/streamFinder";
 import {
-  wOBAColorizerConfig,
-  stuffPlusColorizerConfig,
   streamScoreColorizerConfig,
-  qualityScoreColorizerConfig,
+  generic100NormalizedColorizerConfig,
 } from "../util/mlb";
 import { ColorizerConfig, pitchScoreToColorGradient } from "../util/playerTableUtils";
 import { useSortBy, useTable } from "react-table";
@@ -16,10 +14,9 @@ interface Props {
 
 const tableKeyToColorizerConfig: Record<string, ColorizerConfig | null> = {
   name: null,
-  pitchingPlus: stuffPlusColorizerConfig,
-  qualityScore: qualityScoreColorizerConfig,
+  qualityScore: generic100NormalizedColorizerConfig,
   streamScore: streamScoreColorizerConfig,
-  wOBAAgainstHandSplit: wOBAColorizerConfig,
+  matchupScore: generic100NormalizedColorizerConfig,
 };
 
 const reactTableColumnDefinitions = [
@@ -28,8 +25,8 @@ const reactTableColumnDefinitions = [
     accessor: "name",
   },
   {
-    Header: "Opp. wOBA vs Hand",
-    accessor: "wOBAAgainstHandSplit",
+    Header: "Matchup Score",
+    accessor: "matchupScore",
   },
   {
     Header: "Quality Score",

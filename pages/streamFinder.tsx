@@ -65,9 +65,9 @@ export interface StreamFinderBasePitcherData {
 
 export interface StreamFinderPitcherData {
   readonly name: string;
+  readonly matchupScore: number;
   readonly qualityScore: number;
   readonly streamScore: number;
-  readonly wOBAAgainstHandSplit: number;
 }
 
 export const getStaticProps = async () => {

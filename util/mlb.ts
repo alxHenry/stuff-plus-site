@@ -52,7 +52,7 @@ export const wOBAColorizerConfig: ColorizerConfig = {
   higherIsBetter: false,
 };
 
-export const qualityScoreColorizerConfig: ColorizerConfig = {
+export const generic100NormalizedColorizerConfig: ColorizerConfig = {
   baseline: 100,
   max: 120,
   min: 80,

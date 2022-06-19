@@ -4,9 +4,11 @@ import { LEAGUE_AVG_FIP, LEAGUE_AVG_SIERA, stuffPlusColorizerConfig, wOBAColoriz
 const QUALITY_WEIGHT = 0.6;
 const MATCHUP_WEIGHT = 0.4;
 
-export const generateStreamScore = (pitcherData: StreamFinderBasePitcherData) => {
-  const qualityScore = generatePitcherQualityScore(pitcherData);
-  const matchupScore = generatePitcherMatchupScore(pitcherData);
+export interface StreamScoreData extends PitcherQualityScoreData, PitcherMatchupScoreData {}
+
+export const generateStreamScore = ({ fip, siera, pitchingPlus, wOBAAgainstHandSplit }: StreamScoreData) => {
+  const qualityScore = generatePitcherQualityScore({ fip, siera, pitchingPlus });
+  const matchupScore = generatePitcherMatchupScore({ wOBAAgainstHandSplit });
 
   return qualityScore * QUALITY_WEIGHT + matchupScore * MATCHUP_WEIGHT;
 };
@@ -30,9 +32,13 @@ export const generatePitcherQualityScore = ({ pitchingPlus, fip, siera }: Pitche
   return pitcherQualityRating;
 };
 
-const generatePitcherMatchupScore = (pitcherData: StreamFinderBasePitcherData) => {
+export interface PitcherMatchupScoreData {
+  wOBAAgainstHandSplit: number;
+}
+
+export const generatePitcherMatchupScore = ({ wOBAAgainstHandSplit }: PitcherMatchupScoreData) => {
   const { baseline } = wOBAColorizerConfig;
-  const pitcherMatchupRating = ((baseline - pitcherData.wOBAAgainstHandSplit + baseline) / baseline) * 100;
+  const pitcherMatchupRating = ((baseline - wOBAAgainstHandSplit + baseline) / baseline) * 100;
 
   return pitcherMatchupRating;
 };
