@@ -1,3 +1,4 @@
+import { roundToTwoDecimalPlaces } from "../fetching/streamFinderFetching";
 import { StreamFinderBasePitcherData } from "../pages/streamFinder";
 import { LEAGUE_AVG_FIP, LEAGUE_AVG_SIERA, stuffPlusColorizerConfig, wOBAColorizerConfig } from "./mlb";
 
@@ -48,7 +49,11 @@ export const generatePitcherQualityScore = ({
 
   return {
     score: pitcherQualityRating,
-    breakdown: { fip: fipRating, siera: sieraRating, pitchingPlus: pitchingPlusRating },
+    breakdown: {
+      fip: roundToTwoDecimalPlaces(fipRating),
+      siera: roundToTwoDecimalPlaces(sieraRating),
+      pitchingPlus: roundToTwoDecimalPlaces(pitchingPlusRating),
+    },
   };
 };
 
@@ -65,7 +70,7 @@ export const generatePitcherMatchupScore = ({
   return {
     score: pitcherMatchupRating,
     breakdown: {
-      wOBAAgainstHandSplit: pitcherMatchupRating,
+      wOBAAgainstHandSplit: roundToTwoDecimalPlaces(pitcherMatchupRating),
     },
   };
 };

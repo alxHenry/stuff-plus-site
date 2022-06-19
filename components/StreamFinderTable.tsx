@@ -4,6 +4,8 @@ import { StreamFinderPitcherData } from "../pages/streamFinder";
 import { streamScoreColorizerConfig, generic100NormalizedColorizerConfig } from "../util/mlb";
 import { ColorizerConfig, pitchScoreToColorGradient } from "../util/playerTableUtils";
 import { useSortBy, useTable } from "react-table";
+import StreamFinderTableCellPopover from "./StreamFinderTableCellPopover";
+import { PitcherMatchupScoreData, PitcherQualityScoreData } from "../util/statistics";
 
 interface Props {
   streamFinderData: Record<string, StreamFinderPitcherData>;
@@ -16,17 +18,18 @@ const tableKeyToColorizerConfig: Record<string, ColorizerConfig | null> = {
   matchupScore: generic100NormalizedColorizerConfig,
 };
 
-const reactTableColumnDefinitions = [
+type TableKey = "name" | "matchupScore" | "qualityScore" | "streamScore";
+const reactTableColumnDefinitions: { Header: string; accessor: TableKey }[] = [
   {
     Header: "Name",
     accessor: "name",
   },
   {
-    Header: "Matchup Score",
+    Header: "Matchup",
     accessor: "matchupScore",
   },
   {
-    Header: "Quality Score",
+    Header: "Quality",
     accessor: "qualityScore",
   },
   {
@@ -70,12 +73,24 @@ const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
   });
 
   const bodyContent = rows.map((row) => {
+    debugger;
+    const pitcherName: string = row.values["name"];
+    const pitcherData = streamFinderData[pitcherName];
+    const breakdowns: Record<TableKey, PitcherMatchupScoreData | PitcherQualityScoreData | null> = {
+      name: null,
+      matchupScore: pitcherData.matchupBreakdown,
+      qualityScore: pitcherData.qualityBreakdown,
+      streamScore: null,
+    };
+
     prepareRow(row);
+
     return (
       // eslint-disable-next-line react/jsx-key
       <Tr {...row.getRowProps()}>
         {row.cells.map((cell) => {
           const colorizerConfig = tableKeyToColorizerConfig[cell.column.id];
+          const breakdown = breakdowns[cell.column.id as TableKey];
 
           return (
             // eslint-disable-next-line react/jsx-key
@@ -83,7 +98,9 @@ const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
               {...cell.getCellProps()}
               backgroundColor={!!colorizerConfig ? pitchScoreToColorGradient(cell.value, colorizerConfig) : undefined}
             >
-              {cell.render("Cell")}
+              <StreamFinderTableCellPopover breakdown={breakdown}>
+                <>{cell.render("Cell")}</>
+              </StreamFinderTableCellPopover>
             </Td>
           );
         })}

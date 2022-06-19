@@ -120,7 +120,7 @@ export const combineStreamFinderData = (
   return { data: starters, dateHeadline: probableStarters.headlineDate };
 };
 
-const roundToTwoDecimalPlaces = (num: number) => Math.round(num * 100 + Number.EPSILON) / 100;
+export const roundToTwoDecimalPlaces = (num: number) => Math.round(num * 100 + Number.EPSILON) / 100;
 
 export const fetchStuffPlusGoogleDocCurrentSeasonData = async (): Promise<PlayerData[]> => {
   if (!process.env.GOOGLE_API_CLIENT_EMAIL || !process.env.GOOGLE_API_PRIVATE_KEY) {
