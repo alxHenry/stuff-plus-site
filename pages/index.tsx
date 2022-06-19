@@ -149,7 +149,7 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
           </HStack>
         </Box>
         <Center>
-          <Heading as="h1" size="lg" isTruncated>
+          <Heading as="h1" size="lg">
             {currentTitle}
           </Heading>
         </Center>
