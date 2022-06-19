@@ -1,4 +1,5 @@
 import {
+  Box,
   Popover,
   PopoverTrigger,
   Button,
@@ -7,12 +8,13 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   PopoverBody,
-  PopoverFooter,
   ButtonGroup,
   Link,
   Text,
 } from "@chakra-ui/react";
 import { FC, ReactElement, useState } from "react";
+import { generic100NormalizedColorizerConfig } from "../util/mlb";
+import { pitchScoreToColorGradient } from "../util/playerTableUtils";
 import { PitcherMatchupScoreData, PitcherQualityScoreData } from "../util/statistics";
 
 interface Props {
@@ -21,10 +23,10 @@ interface Props {
 }
 
 const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const toggleOpen = () => {
-    setIsOpen((prev) => !prev);
-  };
+  // const [isOpen, setIsOpen] = useState(false);
+  // const toggleOpen = () => {
+  //   setIsOpen((prev) => !prev);
+  // };
 
   if (breakdown == null) {
     return children;
@@ -32,27 +34,34 @@ const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
 
   const contentRows = Object.entries(breakdown).map(([key, value]) => {
     return (
-      <Text key={key}>
-        {key}: {value}
-      </Text>
+      <Box key={key}>
+        <Text display="inline">{key}: </Text>
+        <Text
+          display="inline"
+          color={pitchScoreToColorGradient(value, generic100NormalizedColorizerConfig)}
+          fontWeight="bold"
+        >
+          {value}
+        </Text>
+      </Box>
     );
   });
 
   const content = (
-    <PopoverContent>
-      <PopoverHeader fontWeight="semibold">Breakdown</PopoverHeader>
+    <PopoverContent color="white">
+      <PopoverHeader fontWeight="semibold" backgroundColor="teal.800">
+        Breakdown
+      </PopoverHeader>
       <PopoverArrow />
       <PopoverCloseButton />
-      <PopoverBody>{contentRows}</PopoverBody>
+      <PopoverBody backgroundColor="teal.900">{contentRows}</PopoverBody>
     </PopoverContent>
   );
 
   return (
-    <Popover isOpen={isOpen} placement="right" closeOnBlur={true}>
+    <Popover placement="right" closeOnBlur={true} trigger="hover">
       <PopoverTrigger>
-        <Link onClick={toggleOpen} fontWeight="semibold">
-          {children}
-        </Link>
+        <Link fontWeight="semibold">{children}</Link>
       </PopoverTrigger>
       {content}
     </Popover>

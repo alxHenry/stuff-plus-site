@@ -73,7 +73,6 @@ const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
   });
 
   const bodyContent = rows.map((row) => {
-    debugger;
     const pitcherName: string = row.values["name"];
     const pitcherData = streamFinderData[pitcherName];
     const breakdowns: Record<TableKey, PitcherMatchupScoreData | PitcherQualityScoreData | null> = {
