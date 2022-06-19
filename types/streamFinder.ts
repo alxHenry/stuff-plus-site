@@ -14,3 +14,9 @@ export interface ProbableStarter {
   team: string;
   opposingTeam: string;
 }
+
+export type NameToFangraphsPitcherData = Record<string, FangraphsPitcherData>;
+export interface FangraphsPitcherData {
+  siera: number;
+  fip: number;
+}

@@ -56,13 +56,18 @@ export interface StreamFinderDay {
 }
 
 export interface StreamFinderBasePitcherData {
+  readonly fip: number;
   readonly name: string;
-  readonly wOBAAgainstHandSplit: number;
   readonly pitchingPlus: number;
+  readonly siera: number;
+  readonly wOBAAgainstHandSplit: number;
 }
 
-export interface StreamFinderPitcherData extends StreamFinderBasePitcherData {
+export interface StreamFinderPitcherData {
+  readonly name: string;
+  readonly qualityScore: number;
   readonly streamScore: number;
+  readonly wOBAAgainstHandSplit: number;
 }
 
 export const getStaticProps = async () => {

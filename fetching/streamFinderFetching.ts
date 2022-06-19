@@ -3,20 +3,26 @@ import axios from "axios";
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { PlayerData } from "../pages";
 import { StreamFinderDay, StreamFinderPitcherData, StreamFinderBasePitcherData } from "../pages/streamFinder";
-import { ProbableStarterData, ProbableStarter, WOBASplitsData } from "../types/streamFinder";
-import { mlbTeamNameToAbbrev } from "../util/mlb";
-import { generateStreamScore } from "../util/statistics";
+import {
+  ProbableStarterData,
+  ProbableStarter,
+  WOBASplitsData,
+  NameToFangraphsPitcherData,
+} from "../types/streamFinder";
+import { LEAGUE_AVG_FIP, LEAGUE_AVG_SIERA, mlbTeamNameToAbbrev } from "../util/mlb";
+import { generatePitcherQualityScore, generateStreamScore } from "../util/statistics";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 
 export const fetchStreamFinderData = async (): Promise<StreamFinderDay[]> => {
-  const [stuffPlusData, wOBASplits, probableStarters] = await Promise.all([
+  const [stuffPlusData, wOBASplits, probableStarters, fangraphsDataMap] = await Promise.all([
     fetchStuffPlusGoogleDocCurrentSeasonData(),
     fetchBaseballSavantWOBASplits(),
     fetchProbableStarters(),
+    fetchFangraphsPitchingStats(),
   ]);
 
-  const today = combineStreamFinderData(stuffPlusData, wOBASplits, probableStarters[0]);
-  const tomorrow = combineStreamFinderData(stuffPlusData, wOBASplits, probableStarters[1]);
+  const today = combineStreamFinderData(stuffPlusData, wOBASplits, probableStarters[0], fangraphsDataMap);
+  const tomorrow = combineStreamFinderData(stuffPlusData, wOBASplits, probableStarters[1], fangraphsDataMap);
 
   return [today, tomorrow];
 };
@@ -69,7 +75,8 @@ const parseProbableStarters = (html: string) => {
 export const combineStreamFinderData = (
   stuffPlusData: PlayerData[],
   wOBASplits: WOBASplitsData,
-  probableStarters: ProbableStarterData
+  probableStarters: ProbableStarterData,
+  fangraphsDataMap: NameToFangraphsPitcherData
 ): StreamFinderDay => {
   const starters = probableStarters.starters.reduce<StreamFinderPitcherData[]>((results, probableStarter) => {
     // TODO: Convert the stuff data to a map so we can lookup isntead of iterating
@@ -77,6 +84,9 @@ export const combineStreamFinderData = (
     if (pitcherStuffData?.pitchingPlus == null || pitcherStuffData?.handedness == null) {
       return results;
     }
+
+    const fangraphsData = fangraphsDataMap[probableStarter.name] ?? { fip: LEAGUE_AVG_FIP, siera: LEAGUE_AVG_SIERA };
+    const { fip, siera } = fangraphsData;
 
     const opposingTeamAbbrev = mlbTeamNameToAbbrev[probableStarter.opposingTeam];
     const teamSplits = wOBASplits[opposingTeamAbbrev];
@@ -86,10 +96,16 @@ export const combineStreamFinderData = (
       name: probableStarter.name,
       pitchingPlus: pitcherStuffData.pitchingPlus,
       wOBAAgainstHandSplit,
+      fip,
+      siera,
     };
 
     results.push({
-      ...baseData,
+      name: baseData.name,
+      qualityScore: roundToTwoDecimalPlaces(
+        generatePitcherQualityScore({ pitchingPlus: pitcherStuffData.pitchingPlus, fip, siera })
+      ),
+      wOBAAgainstHandSplit,
       streamScore: roundToTwoDecimalPlaces(generateStreamScore(baseData)),
     });
 
@@ -162,6 +178,30 @@ export const fetchBaseballSavantWOBASplits = async (): Promise<WOBASplitsData> =
 
     return wOBAData;
   }, {});
+};
+
+export const fetchFangraphsPitchingStats = async (): Promise<NameToFangraphsPitcherData> => {
+  const fangraphsPitchingStatsUrl =
+    "https://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=30&type=1&season=2022&month=0&season1=2022&ind=0&team=0&rost=0&age=0&filter=&players=0&startdate=2022-01-01&enddate=2022-12-31&page=1_700";
+  const response = await axios.get<string>(fangraphsPitchingStatsUrl);
+  const nameToFangraphsPitcherData: NameToFangraphsPitcherData = {};
+
+  const $fangraphs = cheerio.load(response.data);
+  $fangraphs("div#LeaderBoard1_dg1 tbody tr.rgRow").each((_index, elem) => {
+    const $ = cheerio.load(elem);
+    const cells = $("td");
+
+    const playerName = cells.eq(1).text().trim();
+    const siera = cells.eq(-1).text().trim();
+    const fip = cells.eq(-4).text().trim();
+
+    nameToFangraphsPitcherData[playerName] = {
+      fip: parseFloat(fip),
+      siera: parseFloat(siera),
+    };
+  });
+
+  return nameToFangraphsPitcherData;
 };
 
 const formatHeadlineDate = (date: Date) => `${date.getMonth() + 1}/${date.getDate()}`;

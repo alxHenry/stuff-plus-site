@@ -51,3 +51,13 @@ export const wOBAColorizerConfig: ColorizerConfig = {
   min: 0.255,
   higherIsBetter: false,
 };
+
+export const qualityScoreColorizerConfig: ColorizerConfig = {
+  baseline: 100,
+  max: 120,
+  min: 80,
+};
+
+// TODO: Calculate these
+export const LEAGUE_AVG_FIP = 3.99;
+export const LEAGUE_AVG_SIERA = 3.89;
