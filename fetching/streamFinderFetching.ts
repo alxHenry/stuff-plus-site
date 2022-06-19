@@ -78,42 +78,44 @@ export const combineStreamFinderData = (
   probableStarters: ProbableStarterData,
   fangraphsDataMap: NameToFangraphsPitcherData
 ): StreamFinderDay => {
-  const starters = probableStarters.starters.reduce<StreamFinderPitcherData[]>((results, probableStarter) => {
-    // TODO: Convert the stuff data to a map so we can lookup isntead of iterating
-    const pitcherStuffData = stuffPlusData.find((data) => data.name === probableStarter.name);
-    if (pitcherStuffData?.pitchingPlus == null || pitcherStuffData?.handedness == null) {
+  const starters = probableStarters.starters.reduce<Record<string, StreamFinderPitcherData>>(
+    (results, probableStarter) => {
+      // TODO: Convert the stuff data to a map so we can lookup isntead of iterating
+      const pitcherStuffData = stuffPlusData.find((data) => data.name === probableStarter.name);
+      if (pitcherStuffData?.pitchingPlus == null || pitcherStuffData?.handedness == null) {
+        return results;
+      }
+
+      const fangraphsData = fangraphsDataMap[probableStarter.name] ?? { fip: LEAGUE_AVG_FIP, siera: LEAGUE_AVG_SIERA };
+      const { fip, siera } = fangraphsData;
+
+      const opposingTeamAbbrev = mlbTeamNameToAbbrev[probableStarter.opposingTeam];
+      const teamSplits = wOBASplits[opposingTeamAbbrev];
+      const wOBAAgainstHandSplit = pitcherStuffData.handedness === "R" ? teamSplits.vsR : teamSplits.vsL;
+
+      const qualityData = { pitchingPlus: pitcherStuffData.pitchingPlus, fip, siera };
+      const matchupData = { wOBAAgainstHandSplit };
+
+      const quality = generatePitcherQualityScore(qualityData);
+      const matchup = generatePitcherMatchupScore(matchupData);
+
+      results[probableStarter.name] = {
+        name: probableStarter.name,
+        qualityBreakdown: quality.breakdown,
+        qualityScore: roundToTwoDecimalPlaces(quality.score),
+        matchupBreakdown: matchup.breakdown,
+        matchupScore: roundToTwoDecimalPlaces(matchup.score),
+        streamScore: roundToTwoDecimalPlaces(
+          generateStreamScore({
+            ...qualityData,
+            ...matchupData,
+          }).score
+        ),
+      };
       return results;
-    }
-
-    const fangraphsData = fangraphsDataMap[probableStarter.name] ?? { fip: LEAGUE_AVG_FIP, siera: LEAGUE_AVG_SIERA };
-    const { fip, siera } = fangraphsData;
-
-    const opposingTeamAbbrev = mlbTeamNameToAbbrev[probableStarter.opposingTeam];
-    const teamSplits = wOBASplits[opposingTeamAbbrev];
-    const wOBAAgainstHandSplit = pitcherStuffData.handedness === "R" ? teamSplits.vsR : teamSplits.vsL;
-
-    const qualityData = { pitchingPlus: pitcherStuffData.pitchingPlus, fip, siera };
-    const matchupData = { wOBAAgainstHandSplit };
-
-    const quality = generatePitcherQualityScore(qualityData);
-    const matchup = generatePitcherMatchupScore(matchupData);
-
-    results.push({
-      name: probableStarter.name,
-      qualityBreakdown: quality.breakdown,
-      qualityScore: roundToTwoDecimalPlaces(quality.score),
-      matchupBreakdown: matchup.breakdown,
-      matchupScore: roundToTwoDecimalPlaces(matchup.score),
-      streamScore: roundToTwoDecimalPlaces(
-        generateStreamScore({
-          ...qualityData,
-          ...matchupData,
-        }).score
-      ),
-    });
-
-    return results;
-  }, []);
+    },
+    {}
+  );
 
   return { data: starters, dateHeadline: probableStarters.headlineDate };
 };

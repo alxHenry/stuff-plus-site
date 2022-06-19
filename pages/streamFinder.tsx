@@ -52,7 +52,7 @@ const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
 };
 
 export interface StreamFinderDay {
-  readonly data: StreamFinderPitcherData[];
+  readonly data: Record<string, StreamFinderPitcherData>;
   readonly dateHeadline: string;
 }
 

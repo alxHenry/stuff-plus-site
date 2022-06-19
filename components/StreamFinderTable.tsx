@@ -1,15 +1,12 @@
 import { Tr, Td, TableContainer, Table, Thead, Th, Tbody } from "@chakra-ui/react";
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { StreamFinderPitcherData } from "../pages/streamFinder";
-import {
-  streamScoreColorizerConfig,
-  generic100NormalizedColorizerConfig,
-} from "../util/mlb";
+import { streamScoreColorizerConfig, generic100NormalizedColorizerConfig } from "../util/mlb";
 import { ColorizerConfig, pitchScoreToColorGradient } from "../util/playerTableUtils";
 import { useSortBy, useTable } from "react-table";
 
 interface Props {
-  streamFinderData: StreamFinderPitcherData[];
+  streamFinderData: Record<string, StreamFinderPitcherData>;
 }
 
 const tableKeyToColorizerConfig: Record<string, ColorizerConfig | null> = {
@@ -42,10 +39,12 @@ const reactTableColumnDefinitions = [
 const reactTableInitialState = { sortBy: [{ id: "streamScore", desc: true }] } as unknown as any;
 
 const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
+  const tableRows = useMemo(() => Object.values(streamFinderData), [streamFinderData]);
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns: reactTableColumnDefinitions,
-      data: streamFinderData,
+      data: tableRows,
       initialState: reactTableInitialState,
     },
     useSortBy
