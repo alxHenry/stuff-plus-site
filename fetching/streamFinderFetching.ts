@@ -192,7 +192,7 @@ export const fetchFangraphsPitchingStats = async (): Promise<NameToFangraphsPitc
   const nameToFangraphsPitcherData: NameToFangraphsPitcherData = {};
 
   const $fangraphs = cheerio.load(response.data);
-  $fangraphs("div#LeaderBoard1_dg1 tbody tr.rgRow").each((_index, elem) => {
+  $fangraphs("div#LeaderBoard1_dg1 tbody tr").each((_index, elem) => {
     const $ = cheerio.load(elem);
     const cells = $("td");
 
