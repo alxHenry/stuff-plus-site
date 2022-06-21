@@ -210,7 +210,12 @@ export const fetchFangraphsPitchingStats = async (): Promise<NameToFangraphsPitc
   return nameToFangraphsPitcherData;
 };
 
-const formatHeadlineDate = (date: Date) => `${date.getMonth() + 1}/${date.getDate()}`;
+const formatHeadlineDate = (date: Date) =>
+  date.toLocaleDateString("en-US", {
+    timeZone: "America/Los_Angeles",
+    month: "numeric",
+    day: "2-digit",
+  });
 
 const formatMlbRouteParamDate = (date: Date) => {
   return date
