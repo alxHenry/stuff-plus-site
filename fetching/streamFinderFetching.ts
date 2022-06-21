@@ -101,6 +101,7 @@ export const combineStreamFinderData = (
 
       results[probableStarter.name] = {
         name: probableStarter.name,
+        handedness: pitcherStuffData.handedness,
         qualityBreakdown: quality.breakdown,
         qualityScore: roundToTwoDecimalPlaces(quality.score),
         matchupBreakdown: matchup.breakdown,

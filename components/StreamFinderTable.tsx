@@ -91,6 +91,11 @@ const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
           const colorizerConfig = tableKeyToColorizerConfig[cell.column.id];
           const breakdown = breakdowns[cell.column.id as TableKey];
 
+          let handednessAppend = "";
+          if ((cell.column.id as TableKey) === "name") {
+            handednessAppend = `, ${streamFinderData[cell.value].handedness}`;
+          }
+
           return (
             // eslint-disable-next-line react/jsx-key
             <Td
@@ -98,7 +103,10 @@ const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
               backgroundColor={!!colorizerConfig ? pitchScoreToColorGradient(cell.value, colorizerConfig) : undefined}
             >
               <StreamFinderTableCellPopover breakdown={breakdown}>
-                <>{cell.render("Cell")}</>
+                <>
+                  {cell.render("Cell")}
+                  {handednessAppend}
+                </>
               </StreamFinderTableCellPopover>
             </Td>
           );

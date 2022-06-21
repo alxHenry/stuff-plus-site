@@ -66,6 +66,7 @@ export interface StreamFinderBasePitcherData {
 
 export interface StreamFinderPitcherData {
   readonly name: string;
+  readonly handedness: string;
   readonly matchupBreakdown: PitcherMatchupScoreData;
   readonly matchupScore: number;
   readonly qualityBreakdown: PitcherQualityScoreData;
