@@ -147,8 +147,12 @@ export const fetchStuffPlusGoogleDocCurrentSeasonData = async (): Promise<Player
 };
 
 export const fetchBaseballSavantWOBASplits = async (): Promise<WOBASplitsData> => {
-  const baseballSavantWOBASplitsLeftUrl = `https://baseballsavant.mlb.com/statcast_search?hfPT=&hfAB=&hfGT=R%7C&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfPull=&hfC=&hfSea=2022%7C&hfSit=&player_type=batter&hfOuts=&opponent=&pitcher_throws=L&batter_stands=&hfSA=&game_date_gt=&game_date_lt=&hfInfield=&team=&position=&hfOutfield=&hfRO=&home_road=&hfFlag=&hfBBT=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=team&sort_col=wOBA&player_event_sort=api_p_release_speed&sort_order=desc&min_pas=0&chk_stats_woba=on`;
-  const baseballSavantWOBASplitsRightUrl = `https://baseballsavant.mlb.com/statcast_search?hfPT=&hfAB=&hfGT=R%7C&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfPull=&hfC=&hfSea=2022%7C&hfSit=&player_type=batter&hfOuts=&opponent=&pitcher_throws=R&batter_stands=&hfSA=&game_date_gt=&game_date_lt=&hfInfield=&team=&position=&hfOutfield=&hfRO=&home_road=&hfFlag=&hfBBT=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=team&sort_col=wOBA&player_event_sort=api_p_release_speed&sort_order=desc&min_pas=0&chk_stats_woba=on`;
+  const today = new Date();
+  const thirtyDaysAgo = new Date(today.setDate(today.getDate() - 30));
+  const thirtyDaysAgoString = thirtyDaysAgo.toISOString().split("T")[0]; // yyyy-mm-dd
+
+  const baseballSavantWOBASplitsLeftUrl = `https://baseballsavant.mlb.com/statcast_search?hfPT=&hfAB=&hfGT=R%7C&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfPull=&hfC=&hfSea=2022%7C&hfSit=&player_type=batter&hfOuts=&opponent=&pitcher_throws=L&batter_stands=&hfSA=&game_date_gt=${thirtyDaysAgoString}&game_date_lt=&hfInfield=&team=&position=&hfOutfield=&hfRO=&home_road=&hfFlag=&hfBBT=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=team&sort_col=wOBA&player_event_sort=api_p_release_speed&sort_order=desc&min_pas=0&chk_stats_woba=on`;
+  const baseballSavantWOBASplitsRightUrl = `https://baseballsavant.mlb.com/statcast_search?hfPT=&hfAB=&hfGT=R%7C&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfPull=&hfC=&hfSea=2022%7C&hfSit=&player_type=batter&hfOuts=&opponent=&pitcher_throws=R&batter_stands=&hfSA=&game_date_gt=${thirtyDaysAgoString}&game_date_lt=&hfInfield=&team=&position=&hfOutfield=&hfRO=&home_road=&hfFlag=&hfBBT=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=team&sort_col=wOBA&player_event_sort=api_p_release_speed&sort_order=desc&min_pas=0&chk_stats_woba=on`;
 
   const fetchPromises = [
     axios.get<string>(baseballSavantWOBASplitsLeftUrl),
@@ -187,8 +191,11 @@ export const fetchBaseballSavantWOBASplits = async (): Promise<WOBASplitsData> =
 };
 
 export const fetchFangraphsPitchingStats = async (): Promise<NameToFangraphsPitcherData> => {
-  const fangraphsPitchingStatsUrl =
-    "https://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=30&type=1&season=2022&month=0&season1=2022&ind=0&team=0&rost=0&age=0&filter=&players=0&startdate=2022-01-01&enddate=2022-12-31&page=1_700";
+  const today = new Date();
+  const sixtyDaysAgo = new Date(today.setDate(today.getDate() - 60));
+  const sixtyDaysAgoString = sixtyDaysAgo.toISOString().split("T")[0]; // yyyy-mm-dd
+
+  const fangraphsPitchingStatsUrl = `https://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=30&type=1&season=2022&month=0&season1=2022&ind=0&team=0&rost=0&age=0&filter=&players=0&startdate=${sixtyDaysAgoString}&enddate=2022-11-30&page=1_700`;
   const response = await axios.get<string>(fangraphsPitchingStatsUrl);
   const nameToFangraphsPitcherData: NameToFangraphsPitcherData = {};
 
