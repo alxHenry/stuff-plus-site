@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
-    "start": "next build && npm install && next start",
+    "start": "next build && next start",
     "start:local": "next start",
     "lint": "next lint",
     "deploy": "caprover deploy"
