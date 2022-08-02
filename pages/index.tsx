@@ -235,9 +235,9 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
   const currentSheet = doc.sheetsByTitle["7/24"];
 
   const [currentRows, springTrainingRows, lastSeasonRows] = await Promise.all([
-    currentSheet.getRows({ limit: 600, offset: 0 }),
-    springTrainingSheet.getRows({ limit: 600, offset: 0 }),
-    lastSeasonSheet.getRows({ limit: 600, offset: 0 }),
+    currentSheet.getRows({ limit: 1000, offset: 0 }),
+    springTrainingSheet.getRows({ limit: 1000, offset: 0 }),
+    lastSeasonSheet.getRows({ limit: 1000, offset: 0 }),
   ]);
 
   const currentPlayerData = currentRows.map(sheetRowToPlayerData);
