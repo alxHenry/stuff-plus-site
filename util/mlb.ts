@@ -1,5 +1,10 @@
 import type { ColorizerConfig } from "./playerTableUtils";
 
+// TODO: Calculate these
+export const LEAGUE_AVG_FIP = 3.99;
+export const LEAGUE_AVG_SIERA = 3.89;
+export const LEAGUE_AVG_K_BB = 13.9;
+
 export const mlbTeamNameToAbbrev: Record<string, string> = {
   Angels: "LAA",
   Astros: "HOU",
@@ -52,12 +57,14 @@ export const wOBAColorizerConfig: ColorizerConfig = {
   higherIsBetter: false,
 };
 
+export const kBBColorizerConfig: ColorizerConfig = {
+  baseline: LEAGUE_AVG_K_BB,
+  max: 45,
+  min: 5,
+};
+
 export const generic100NormalizedColorizerConfig: ColorizerConfig = {
   baseline: 100,
   max: 120,
   min: 80,
 };
-
-// TODO: Calculate these
-export const LEAGUE_AVG_FIP = 3.99;
-export const LEAGUE_AVG_SIERA = 3.89;

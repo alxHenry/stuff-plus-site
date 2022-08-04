@@ -87,13 +87,13 @@ export const combineStreamFinderData = (
       }
 
       const fangraphsData = fangraphsDataMap[probableStarter.name] ?? { fip: LEAGUE_AVG_FIP, siera: LEAGUE_AVG_SIERA };
-      const { fip, siera } = fangraphsData;
+      const { kBB, fip, siera } = fangraphsData;
 
       const opposingTeamAbbrev = mlbTeamNameToAbbrev[probableStarter.opposingTeam];
       const teamSplits = wOBASplits[opposingTeamAbbrev];
       const wOBAAgainstHandSplit = pitcherStuffData.handedness === "R" ? teamSplits.vsR : teamSplits.vsL;
 
-      const qualityData = { pitchingPlus: pitcherStuffData.pitchingPlus, fip, siera };
+      const qualityData = { pitchingPlus: pitcherStuffData.pitchingPlus, kBB, fip, siera };
       const matchupData = { wOBAAgainstHandSplit };
 
       const quality = generatePitcherQualityScore(qualityData);
@@ -207,10 +207,12 @@ export const fetchFangraphsPitchingStats = async (): Promise<NameToFangraphsPitc
     const playerName = cells.eq(1).text().trim();
     const siera = cells.eq(-1).text().trim();
     const fip = cells.eq(-4).text().trim();
+    const kBB = cells.eq(9).text().trim().slice(0, -1); // Trim off the "%""
 
     nameToFangraphsPitcherData[playerName] = {
       fip: parseFloat(fip),
       siera: parseFloat(siera),
+      kBB: parseFloat(kBB),
     };
   });
 

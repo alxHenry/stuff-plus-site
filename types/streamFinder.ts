@@ -19,4 +19,5 @@ export type NameToFangraphsPitcherData = Record<string, FangraphsPitcherData>;
 export interface FangraphsPitcherData {
   siera: number;
   fip: number;
+  kBB: number;
 }
