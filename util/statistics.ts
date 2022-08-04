@@ -33,7 +33,7 @@ export interface PitcherQualityScoreData {
   siera: number;
 }
 
-// 50% Pitching+, 25% FIP, 25% SIERA = 100% quality
+// 50% Pitching+, 20% FIP, 30% SIERA = 100% quality
 export const generatePitcherQualityScore = ({
   pitchingPlus,
   fip,
@@ -45,7 +45,7 @@ export const generatePitcherQualityScore = ({
   const fipRating = ((LEAGUE_AVG_FIP - fip + LEAGUE_AVG_FIP) / LEAGUE_AVG_FIP) * 100;
   const sieraRating = ((LEAGUE_AVG_SIERA - siera + LEAGUE_AVG_SIERA) / LEAGUE_AVG_SIERA) * 100;
 
-  const pitcherQualityRating = pitchingPlusRating * 0.5 + fipRating * 0.25 + sieraRating * 0.25;
+  const pitcherQualityRating = pitchingPlusRating * 0.5 + fipRating * 0.2 + sieraRating * 0.3;
 
   return {
     score: pitcherQualityRating,
