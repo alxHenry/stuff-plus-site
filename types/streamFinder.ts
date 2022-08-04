@@ -20,3 +20,5 @@ export interface FangraphsPitcherData {
   siera: number;
   fip: number;
 }
+
+export type TeamNameToParkFactor = Record<string, number>;

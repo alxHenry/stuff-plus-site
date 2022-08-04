@@ -12,15 +12,19 @@ import {
 import { LEAGUE_AVG_FIP, LEAGUE_AVG_SIERA, mlbTeamNameToAbbrev } from "../util/mlb";
 import { generatePitcherMatchupScore, generatePitcherQualityScore, generateStreamScore } from "../util/statistics";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
+import { fetchParkFactors } from "./fetchParkFactors";
 
 export const fetchStreamFinderData = async (): Promise<StreamFinderDay[]> => {
-  const [stuffPlusData, wOBASplits, probableStarters, fangraphsDataMap] = await Promise.all([
+  const [stuffPlusData, wOBASplits, probableStarters, fangraphsDataMap, parkFactors] = await Promise.all([
     fetchStuffPlusGoogleDocCurrentSeasonData(),
     fetchBaseballSavantWOBASplits(),
     fetchProbableStarters(),
     fetchFangraphsPitchingStats(),
+    fetchParkFactors(),
   ]);
 
+  console.log(parkFactors);
+  
   const today = combineStreamFinderData(stuffPlusData, wOBASplits, probableStarters[0], fangraphsDataMap);
   const tomorrow = combineStreamFinderData(stuffPlusData, wOBASplits, probableStarters[1], fangraphsDataMap);
 
