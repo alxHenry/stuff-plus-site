@@ -8,7 +8,7 @@
     "start": "npm install && next build && next start",
     "start:local": "next start",
     "lint": "next lint",
-    "deploy": "caprover deploy"
+    "deploy": "caprover deploy -d"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.2",
