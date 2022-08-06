@@ -23,22 +23,19 @@ interface Props {
 }
 
 const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
-  // const [isOpen, setIsOpen] = useState(false);
-  // const toggleOpen = () => {
-  //   setIsOpen((prev) => !prev);
-  // };
-
   if (breakdown == null) {
     return children;
   }
 
   const contentRows = Object.entries(breakdown).map(([key, value]) => {
+    const isValueRow = key.endsWith("Value");
+
     return (
       <Box key={key}>
         <Text display="inline">{key}: </Text>
         <Text
           display="inline"
-          color={pitchScoreToColorGradient(value, generic100NormalizedColorizerConfig)}
+          color={isValueRow ? "white" : pitchScoreToColorGradient(value, generic100NormalizedColorizerConfig)}
           fontWeight="bold"
         >
           {value}

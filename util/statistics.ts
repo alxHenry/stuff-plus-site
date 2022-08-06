@@ -1,11 +1,10 @@
-import { roundToTwoDecimalPlaces } from "../fetching/streamFinderFetching";
-import { StreamFinderBasePitcherData } from "../pages/streamFinder";
+import { roundToNDecimalPlaces } from "../fetching/streamFinderFetching";
 import { LEAGUE_AVG_FIP, LEAGUE_AVG_SIERA, stuffPlusColorizerConfig, wOBAColorizerConfig } from "./mlb";
 
 const QUALITY_WEIGHT = 0.6;
 const MATCHUP_WEIGHT = 0.4;
 
-export interface StreamScoreData extends PitcherQualityScoreData, PitcherMatchupScoreData {}
+export interface StreamScoreData extends PitcherQualityScoreInput, PitcherMatchupScoreInput {}
 
 export const generateStreamScore = ({
   fip,
@@ -27,10 +26,17 @@ export const generateStreamScore = ({
   return { score: qualityScore * QUALITY_WEIGHT + matchupScore * MATCHUP_WEIGHT, qualityBreakdown, matchupBreakdown };
 };
 
-export interface PitcherQualityScoreData {
+export interface PitcherQualityScoreInput {
   fip: number;
   pitchingPlus: number;
   siera: number;
+}
+export interface PitcherQualityScoreData {
+  fipScore: number;
+  fipValue: number;
+  pitchingPlusScore: number;
+  sieraScore: number;
+  sieraValue: number;
 }
 
 // 50% Pitching+, 20% FIP, 30% SIERA = 100% quality
@@ -38,7 +44,7 @@ export const generatePitcherQualityScore = ({
   pitchingPlus,
   fip,
   siera,
-}: PitcherQualityScoreData): { score: number; breakdown: PitcherQualityScoreData } => {
+}: PitcherQualityScoreInput): { score: number; breakdown: PitcherQualityScoreData } => {
   const baseline = stuffPlusColorizerConfig.baseline;
   const pitchingPlusRating = (pitchingPlus / baseline) * 100;
 
@@ -50,27 +56,34 @@ export const generatePitcherQualityScore = ({
   return {
     score: pitcherQualityRating,
     breakdown: {
-      fip: roundToTwoDecimalPlaces(fipRating),
-      siera: roundToTwoDecimalPlaces(sieraRating),
-      pitchingPlus: roundToTwoDecimalPlaces(pitchingPlusRating),
+      fipScore: roundToNDecimalPlaces(fipRating, 2),
+      fipValue: roundToNDecimalPlaces(fip, 2),
+      sieraScore: roundToNDecimalPlaces(sieraRating, 2),
+      sieraValue: roundToNDecimalPlaces(siera, 2),
+      pitchingPlusScore: roundToNDecimalPlaces(pitchingPlusRating, 1),
     },
   };
 };
 
+export interface PitcherMatchupScoreInput {
+  readonly wOBAAgainstHandSplit: number;
+}
 export interface PitcherMatchupScoreData {
-  wOBAAgainstHandSplit: number;
+  readonly wOBAAgainstHandSplitScore: number;
+  readonly wOBAAgainstHandSplitValue: number;
 }
 // 100% wOBA of opponent vs handedness of pitcher
 export const generatePitcherMatchupScore = ({
   wOBAAgainstHandSplit,
-}: PitcherMatchupScoreData): { score: number; breakdown: PitcherMatchupScoreData } => {
+}: PitcherMatchupScoreInput): { score: number; breakdown: PitcherMatchupScoreData } => {
   const { baseline } = wOBAColorizerConfig;
   const pitcherMatchupRating = ((baseline - wOBAAgainstHandSplit + baseline) / baseline) * 100;
 
   return {
     score: pitcherMatchupRating,
     breakdown: {
-      wOBAAgainstHandSplit: roundToTwoDecimalPlaces(pitcherMatchupRating),
+      wOBAAgainstHandSplitScore: roundToNDecimalPlaces(pitcherMatchupRating, 2),
+      wOBAAgainstHandSplitValue: wOBAAgainstHandSplit,
     },
   };
 };

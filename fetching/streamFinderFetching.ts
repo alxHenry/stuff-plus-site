@@ -103,14 +103,15 @@ export const combineStreamFinderData = (
         name: probableStarter.name,
         handedness: pitcherStuffData.handedness,
         qualityBreakdown: quality.breakdown,
-        qualityScore: roundToTwoDecimalPlaces(quality.score),
+        qualityScore: roundToNDecimalPlaces(quality.score, 2),
         matchupBreakdown: matchup.breakdown,
-        matchupScore: roundToTwoDecimalPlaces(matchup.score),
-        streamScore: roundToTwoDecimalPlaces(
+        matchupScore: roundToNDecimalPlaces(matchup.score, 2),
+        streamScore: roundToNDecimalPlaces(
           generateStreamScore({
             ...qualityData,
             ...matchupData,
-          }).score
+          }).score,
+          2
         ),
       };
       return results;
@@ -121,7 +122,7 @@ export const combineStreamFinderData = (
   return { data: starters, dateHeadline: probableStarters.headlineDate };
 };
 
-export const roundToTwoDecimalPlaces = (num: number) => Math.round(num * 100 + Number.EPSILON) / 100;
+export const roundToNDecimalPlaces = (num: number, decimalPlaces: number) => parseFloat(num.toFixed(decimalPlaces));
 
 export const fetchStuffPlusGoogleDocCurrentSeasonData = async (): Promise<PlayerData[]> => {
   if (!process.env.GOOGLE_API_CLIENT_EMAIL || !process.env.GOOGLE_API_PRIVATE_KEY) {
