@@ -85,9 +85,11 @@ export const combineStreamFinderData = (
       if (pitcherStuffData?.pitchingPlus == null || pitcherStuffData?.handedness == null) {
         return results;
       }
-
-      const fangraphsData = fangraphsDataMap[probableStarter.name] ?? { fip: LEAGUE_AVG_FIP, siera: LEAGUE_AVG_SIERA };
-      const { fip, siera } = fangraphsData;
+      // If they don't qualify for FIP or SIERA yet, bump it to 10% worse than league average
+      const { fip, siera } = fangraphsDataMap[probableStarter.name] ?? {
+        fip: LEAGUE_AVG_FIP * 1.1,
+        siera: LEAGUE_AVG_SIERA * 1.1,
+      };
 
       const opposingTeamAbbrev = mlbTeamNameToAbbrev[probableStarter.opposingTeam];
       const teamSplits = wOBASplits[opposingTeamAbbrev];
