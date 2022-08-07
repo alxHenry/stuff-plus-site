@@ -32,11 +32,9 @@ export interface PitcherQualityScoreInput {
   siera: number;
 }
 export interface PitcherQualityScoreData {
-  fipScore: number;
-  fipValue: number;
-  pitchingPlusScore: number;
-  sieraScore: number;
-  sieraValue: number;
+  fip: { value: number; score: number };
+  pitchingPlus: { score: number };
+  siera: { value: number; score: number };
 }
 
 // 50% Pitching+, 20% FIP, 30% SIERA = 100% quality
@@ -56,11 +54,9 @@ export const generatePitcherQualityScore = ({
   return {
     score: pitcherQualityRating,
     breakdown: {
-      fipScore: roundToNDecimalPlaces(fipRating, 2),
-      fipValue: roundToNDecimalPlaces(fip, 2),
-      sieraScore: roundToNDecimalPlaces(sieraRating, 2),
-      sieraValue: roundToNDecimalPlaces(siera, 2),
-      pitchingPlusScore: roundToNDecimalPlaces(pitchingPlusRating, 1),
+      fip: { value: roundToNDecimalPlaces(fip, 2), score: roundToNDecimalPlaces(fipRating, 2) },
+      siera: { value: roundToNDecimalPlaces(siera, 2), score: roundToNDecimalPlaces(sieraRating, 2) },
+      pitchingPlus: { score: roundToNDecimalPlaces(pitchingPlusRating, 1) },
     },
   };
 };
@@ -69,8 +65,7 @@ export interface PitcherMatchupScoreInput {
   readonly wOBAAgainstHandSplit: number;
 }
 export interface PitcherMatchupScoreData {
-  readonly wOBAAgainstHandSplitScore: number;
-  readonly wOBAAgainstHandSplitValue: number;
+  readonly wOBAAgainstHandSplit: { value: number; score: number };
 }
 // 100% wOBA of opponent vs handedness of pitcher
 export const generatePitcherMatchupScore = ({
@@ -82,8 +77,7 @@ export const generatePitcherMatchupScore = ({
   return {
     score: pitcherMatchupRating,
     breakdown: {
-      wOBAAgainstHandSplitScore: roundToNDecimalPlaces(pitcherMatchupRating, 2),
-      wOBAAgainstHandSplitValue: wOBAAgainstHandSplit,
+      wOBAAgainstHandSplit: { value: wOBAAgainstHandSplit, score: roundToNDecimalPlaces(pitcherMatchupRating, 2) },
     },
   };
 };

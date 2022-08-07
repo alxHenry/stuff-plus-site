@@ -1,21 +1,36 @@
 import {
-  Box,
   Popover,
   PopoverTrigger,
-  Button,
   PopoverContent,
   PopoverHeader,
   PopoverArrow,
   PopoverCloseButton,
   PopoverBody,
-  ButtonGroup,
   Link,
-  Text,
+  Table,
+  TableContainer,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+  Td,
 } from "@chakra-ui/react";
-import { FC, ReactElement, useState } from "react";
+import { FC, ReactElement } from "react";
 import { generic100NormalizedColorizerConfig } from "../util/mlb";
 import { pitchScoreToColorGradient } from "../util/playerTableUtils";
 import { PitcherMatchupScoreData, PitcherQualityScoreData } from "../util/statistics";
+
+function isQualityBreakdown(
+  breakdown: PitcherQualityScoreData | PitcherMatchupScoreData
+): breakdown is PitcherQualityScoreData {
+  return (breakdown as PitcherQualityScoreData).fip !== undefined;
+}
+
+interface PopoverTableRowData {
+  readonly title: string;
+  readonly value: number;
+  readonly score: number;
+}
 
 interface Props {
   breakdown: PitcherQualityScoreData | PitcherMatchupScoreData | null;
@@ -27,22 +42,71 @@ const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
     return children;
   }
 
-  const contentRows = Object.entries(breakdown).map(([key, value]) => {
-    const isValueRow = key.endsWith("Value");
+  const tableHead = (
+    <Thead>
+      <Tr>
+        <Th color="white">Metric</Th>
+        <Th color="white">Value</Th>
+        <Th color="white">Score</Th>
+      </Tr>
+    </Thead>
+  );
+  let bodyContent;
 
-    return (
-      <Box key={key}>
-        <Text display="inline">{key}: </Text>
-        <Text
-          display="inline"
-          color={isValueRow ? "white" : pitchScoreToColorGradient(value, generic100NormalizedColorizerConfig)}
-          fontWeight="bold"
-        >
-          {value}
-        </Text>
-      </Box>
+  if (isQualityBreakdown(breakdown)) {
+    bodyContent = (
+      <TableContainer>
+        <Table>
+          {tableHead}
+          <Tbody>
+            <Tr>
+              <Td>FIP</Td>
+              <Td>{breakdown.fip.value}</Td>
+              <Td color={pitchScoreToColorGradient(breakdown.fip.score, generic100NormalizedColorizerConfig)}>
+                {breakdown.fip.score}
+              </Td>
+            </Tr>
+            <Tr>
+              <Td>SIERA</Td>
+              <Td>{breakdown.siera.value}</Td>
+              <Td color={pitchScoreToColorGradient(breakdown.siera.score, generic100NormalizedColorizerConfig)}>
+                {breakdown.siera.score}
+              </Td>
+            </Tr>
+            <Tr>
+              <Td>Pitching+</Td>
+              <Td>{breakdown.pitchingPlus.score}</Td>
+              <Td color={pitchScoreToColorGradient(breakdown.pitchingPlus.score, generic100NormalizedColorizerConfig)}>
+                {breakdown.pitchingPlus.score}
+              </Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      </TableContainer>
     );
-  });
+  } else {
+    bodyContent = (
+      <TableContainer>
+        <Table>
+          {tableHead}
+          <Tbody>
+            <Tr>
+              <Td>wOBA</Td>
+              <Td>{breakdown.wOBAAgainstHandSplit.value}</Td>
+              <Td
+                color={pitchScoreToColorGradient(
+                  breakdown.wOBAAgainstHandSplit.score,
+                  generic100NormalizedColorizerConfig
+                )}
+              >
+                {breakdown.wOBAAgainstHandSplit.score}
+              </Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      </TableContainer>
+    );
+  }
 
   const content = (
     <PopoverContent color="white">
@@ -51,12 +115,12 @@ const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
       </PopoverHeader>
       <PopoverArrow />
       <PopoverCloseButton />
-      <PopoverBody backgroundColor="teal.900">{contentRows}</PopoverBody>
+      <PopoverBody backgroundColor="teal.900">{bodyContent}</PopoverBody>
     </PopoverContent>
   );
 
   return (
-    <Popover placement="right" closeOnBlur={true} trigger="hover">
+    <Popover closeOnBlur={true} trigger="hover" preventOverflow={true}>
       <PopoverTrigger>
         <Link fontWeight="semibold">{children}</Link>
       </PopoverTrigger>
