@@ -36,9 +36,11 @@ const reactTableColumnDefinitions: { Header: string; accessor: TableKey }[] = [
     Header: "Stream Score",
     accessor: "streamScore",
   },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as unknown as any;
 
 // react-table types are missing sortBy and most initialState keys
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const reactTableInitialState = { sortBy: [{ id: "streamScore", desc: true }] } as unknown as any;
 
 const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
@@ -58,6 +60,7 @@ const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
       // eslint-disable-next-line react/jsx-key
       <Tr {...headerGroup.getHeaderGroupProps()}>
         {headerGroup.headers.map((column) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const untypedColumn = column as unknown as any; // The definitely typed does not support sorting
 
           return (
@@ -100,7 +103,7 @@ const StreamFinderTable: FC<Props> = ({ streamFinderData }) => {
             // eslint-disable-next-line react/jsx-key
             <Td
               {...cell.getCellProps()}
-              backgroundColor={!!colorizerConfig ? pitchScoreToColorGradient(cell.value, colorizerConfig) : undefined}
+              backgroundColor={colorizerConfig ? pitchScoreToColorGradient(cell.value, colorizerConfig) : undefined}
             >
               <StreamFinderTableCellPopover breakdown={breakdown}>
                 <>

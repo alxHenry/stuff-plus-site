@@ -26,12 +26,6 @@ function isQualityBreakdown(
   return (breakdown as PitcherQualityScoreData).fip !== undefined;
 }
 
-interface PopoverTableRowData {
-  readonly title: string;
-  readonly value: number;
-  readonly score: number;
-}
-
 interface Props {
   breakdown: PitcherQualityScoreData | PitcherMatchupScoreData | null;
   children: ReactElement;

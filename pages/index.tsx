@@ -7,7 +7,6 @@ import PlayerTableBody from "../components/PlayerTableBody";
 import { Center, Heading, Stack, Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
 import styles from "../styles/Table.module.css";
 import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
-import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import { columnToSortComparatorMap, getSortIcon } from "../util/playerTableUtils";
@@ -46,7 +45,6 @@ interface Props {
 const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
   const [selectedDataSetIndex, setSelectedDataSetIndex] = useState(0);
   const [filteredAndSortedPlayerData, setFilteredAndSortedPlayerData] = useState(originalPlayerDataSets[0].data);
-  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [sortedColumn, setSortedColumn] = useState<PlayerColumn>();
   const [sortDirection, setSortDirection] = useState<SortDirection>();
 
@@ -58,13 +56,6 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
 
     setSelectedDataSetIndex(selectedDataSetIndex);
     setFilteredAndSortedPlayerData(originalPlayerDataSets[selectedDataSetIndex].data);
-  };
-
-  const openInfoModal = () => {
-    setIsInfoModalOpen(true);
-  };
-  const closeInfoModal = () => {
-    setIsInfoModalOpen(false);
   };
 
   const sortColumn = (columnName: PlayerColumn) => {
@@ -115,7 +106,6 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
         <title>Stuff+ Pitching Metric</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <StuffPlusInfoModal closeModal={closeInfoModal} isOpen={isInfoModalOpen} />
       <Stack marginTop={4} spacing={4}>
         <Center>
           <Heading as="h1" size="lg">
