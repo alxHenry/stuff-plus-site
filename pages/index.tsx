@@ -4,28 +4,13 @@ import { GoogleSpreadsheet } from "google-spreadsheet";
 import Head from "next/head";
 import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
-import {
-  Box,
-  Center,
-  Heading,
-  HStack,
-  Link as ChakraLink,
-  Stack,
-  Table,
-  TableContainer,
-  Tbody,
-  Text,
-  Th,
-  Thead,
-  Tr,
-} from "@chakra-ui/react";
+import { Center, Heading, Stack, Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
 import styles from "../styles/Table.module.css";
 import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
 import StuffPlusInfoModal from "../components/StuffPlusInfoModal";
 import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import { columnToSortComparatorMap, getSortIcon } from "../util/playerTableUtils";
-import Link from "next/link";
 
 export const TWELVE_HOURS_IN_SECONDS = 43200;
 
@@ -131,23 +116,7 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <StuffPlusInfoModal closeModal={closeInfoModal} isOpen={isInfoModalOpen} />
-      <Stack spacing={4}>
-        <Box backgroundColor="teal.500" padding={2}>
-          <HStack>
-            <ChakraLink onClick={openInfoModal} color="white">
-              <Text fontWeight={600} size="lg">
-                What is Stuff+
-              </Text>
-            </ChakraLink>
-            <Link href="/streamFinder" passHref>
-              <ChakraLink color="white">
-                <Text fontWeight={600} size="lg">
-                  Stream Finder
-                </Text>
-              </ChakraLink>
-            </Link>
-          </HStack>
-        </Box>
+      <Stack marginTop={4} spacing={4}>
         <Center>
           <Heading as="h1" size="lg">
             {currentTitle}

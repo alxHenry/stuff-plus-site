@@ -6,7 +6,6 @@ import { useState } from "react";
 import Head from "next/head";
 import { fetchStreamFinderData } from "../fetching/streamFinderFetching";
 import { PitcherMatchupScoreData, PitcherQualityScoreData } from "../util/statistics";
-import Link from "next/link";
 
 export const ONE_HOUR_IN_SECONDS = 3600;
 
@@ -29,38 +28,25 @@ const StreamFinder: NextPage<Props> = ({ streamFinderData }) => {
         <title>Stream Finder</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <Stack spacing={2}>
-        <Box backgroundColor="teal.500" padding={2}>
-          <HStack>
-            <Link href="/" passHref>
-              <ChakraLink color="white">
-                <Text fontWeight={600} size="lg">
-                  Stuff+
-                </Text>
-              </ChakraLink>
-            </Link>
-          </HStack>
-        </Box>
-        <Box>
-          <Flex justifyContent="middle">
-            <Heading marginBottom={3}>
-              {showingToday ? streamFinderData[0].dateHeadline : streamFinderData[1].dateHeadline}
-            </Heading>
-            <Spacer />
-            <Button
-              colorScheme="teal"
-              rightIcon={showingToday ? <ArrowRightIcon /> : <ArrowLeftIcon />}
-              onClick={() => {
-                setShowingToday((prev) => !prev);
-              }}
-              margin={3}
-            >
-              {showingToday ? "Show tomorrow" : "Show yesterday"}
-            </Button>
-          </Flex>
-          {table}
-        </Box>
-      </Stack>
+      <Box>
+        <Flex justifyContent="middle">
+          <Heading margin={3}>
+            {showingToday ? streamFinderData[0].dateHeadline : streamFinderData[1].dateHeadline}
+          </Heading>
+          <Spacer />
+          <Button
+            colorScheme="teal"
+            rightIcon={showingToday ? <ArrowRightIcon /> : <ArrowLeftIcon />}
+            onClick={() => {
+              setShowingToday((prev) => !prev);
+            }}
+            margin={3}
+          >
+            {showingToday ? "Show tomorrow" : "Show yesterday"}
+          </Button>
+        </Flex>
+        {table}
+      </Box>
     </>
   );
 };
