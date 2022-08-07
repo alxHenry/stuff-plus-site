@@ -114,7 +114,7 @@ const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
   );
 
   return (
-    <Popover closeOnBlur={true} trigger="hover" preventOverflow={true}>
+    <Popover closeOnBlur={true} trigger="hover">
       <PopoverTrigger>
         <Link fontWeight="semibold">{children}</Link>
       </PopoverTrigger>

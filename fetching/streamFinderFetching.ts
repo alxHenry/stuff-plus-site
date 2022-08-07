@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 import axios from "axios";
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { PlayerData } from "../pages";
-import { StreamFinderDay, StreamFinderPitcherData, StreamFinderBasePitcherData } from "../pages/streamFinder";
+import { StreamFinderDay, StreamFinderPitcherData } from "../pages/streamFinder";
 import {
   ProbableStarterData,
   ProbableStarter,
@@ -12,6 +12,8 @@ import {
 import { LEAGUE_AVG_FIP, LEAGUE_AVG_SIERA, mlbTeamNameToAbbrev } from "../util/mlb";
 import { generatePitcherMatchupScore, generatePitcherQualityScore, generateStreamScore } from "../util/statistics";
 import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
+
+const PROBABLE_STARTER_TBD_TEXT = "TBD";
 
 export const fetchStreamFinderData = async (): Promise<StreamFinderDay[]> => {
   const [stuffPlusData, wOBASplits, probableStarters, fangraphsDataMap] = await Promise.all([
@@ -51,6 +53,14 @@ export const fetchProbableStarters = async (): Promise<ProbableStarterData[]> =>
   ];
 };
 
+const hasValidProbableStarter = (probableStarterString?: string): boolean => {
+  const isValidName =
+    probableStarterString != null &&
+    probableStarterString !== "" &&
+    probableStarterString !== PROBABLE_STARTER_TBD_TEXT;
+  return isValidName;
+};
+
 const parseProbableStarters = (html: string) => {
   const probableStarters: ProbableStarter[] = [];
   const $mlb = cheerio.load(html);
@@ -59,14 +69,16 @@ const parseProbableStarters = (html: string) => {
     const awayTeamName = $(".probable-pitchers__team-name--away").text().trim();
     const homeTeamName = $(".probable-pitchers__team-name--home").text().trim();
 
-    const $pitcherNames = $(".probable-pitchers__pitcher-name-link");
+    const $pitcherNames = $(".probable-pitchers__pitcher-name");
     const awayPitcherName = $pitcherNames.eq(0).text().trim();
     const homePitcherName = $pitcherNames.eq(1).text().trim();
 
-    probableStarters.push(
-      { name: awayPitcherName, team: awayTeamName, opposingTeam: homeTeamName },
-      { name: homePitcherName, team: homeTeamName, opposingTeam: awayTeamName }
-    );
+    if (hasValidProbableStarter(awayPitcherName)) {
+      probableStarters.push({ name: awayPitcherName, team: awayTeamName, opposingTeam: homeTeamName });
+    }
+    if (hasValidProbableStarter(homePitcherName)) {
+      probableStarters.push({ name: homePitcherName, team: homeTeamName, opposingTeam: awayTeamName });
+    }
   });
 
   return probableStarters;

@@ -77,7 +77,10 @@ export const generatePitcherMatchupScore = ({
   return {
     score: pitcherMatchupRating,
     breakdown: {
-      wOBAAgainstHandSplit: { value: wOBAAgainstHandSplit, score: roundToNDecimalPlaces(pitcherMatchupRating, 2) },
+      wOBAAgainstHandSplit: {
+        value: roundToNDecimalPlaces(wOBAAgainstHandSplit, 3),
+        score: roundToNDecimalPlaces(pitcherMatchupRating, 2),
+      },
     },
   };
 };
