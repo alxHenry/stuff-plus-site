@@ -191,7 +191,7 @@ const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
   await doc.loadInfo();
   const lastSeasonSheet = doc.sheetsByTitle["End of Season Stuff+/Location+"];
   const springTrainingSheet = doc.sheetsByTitle["Spring Training 2022 (thru 4/5)"];
-  const currentSheet = doc.sheetsByTitle["7/24"];
+  const currentSheet = doc.sheetsByTitle["8/9"];
 
   const [currentRows, springTrainingRows, lastSeasonRows] = await Promise.all([
     currentSheet.getRows({ limit: 1000, offset: 0 }),

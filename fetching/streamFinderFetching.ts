@@ -153,7 +153,7 @@ export const fetchStuffPlusGoogleDocCurrentSeasonData = async (): Promise<Player
   });
 
   await doc.loadInfo();
-  const currentSheet = doc.sheetsByTitle["7/24"];
+  const currentSheet = doc.sheetsByTitle["8/9"];
 
   const currentRows = await currentSheet.getRows({ limit: 1000, offset: 0 });
   const currentPlayerData = currentRows.map(sheetRowToPlayerData);
