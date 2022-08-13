@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { HStack, Select, Text } from "@chakra-ui/react";
 import { FC } from "react";
-import { PlayerDataSet } from "../pages";
+import { PlayerDataSet } from "../fetching/googleDocFetching";
 
 interface Props {
   readonly playerDataSets: PlayerDataSet[];

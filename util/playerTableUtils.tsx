@@ -1,5 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import { PlayerColumn, PlayerData, SortDirection } from "../pages";
+import { PlayerData } from "../fetching/googleDocFetching";
+import { PlayerColumn, SortDirection } from "../pages";
 
 const MAX_RGB_VALUE = 255;
 

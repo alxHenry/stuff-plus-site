@@ -1,5 +1,5 @@
 import { GoogleSpreadsheetRow } from "google-spreadsheet";
-import { PlayerData } from "../pages";
+import { PlayerData } from "../fetching/googleDocFetching";
 
 export const sheetRowToPlayerData = (row: GoogleSpreadsheetRow): PlayerData => {
   return {
