@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 A site with a couple of fantasy baseball tools built in:
 
-1. Stuff+ Viewer for pitchers. Stuff+ is a metric developed by Eno Harris of the athletic that studies pitch shapes.
+1. Stuff+ Viewer for pitchers. Stuff+ is a metric developed by Eno Sarris of the athletic that studies pitch shapes.
 1. Pitching Stream Finder. Scores pitchers starting that day for various metrics regarding their matchup and quality.
 
 ## Commands
