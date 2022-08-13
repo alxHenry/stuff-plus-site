@@ -1,7 +1,6 @@
 import * as cheerio from "cheerio";
 import axios from "axios";
-import { GoogleSpreadsheet } from "google-spreadsheet";
-import { PlayerData } from "../pages";
+import { fetchStuffPlusGoogleDocData, PlayerData } from "./googleDocFetching";
 import { StreamFinderDay, StreamFinderPitcherData } from "../pages/streamFinder";
 import {
   ProbableStarterData,
@@ -11,7 +10,6 @@ import {
 } from "../types/streamFinder";
 import { LEAGUE_AVG_FIP, LEAGUE_AVG_SIERA, mlbTeamNameToAbbrev } from "../util/mlb";
 import { generatePitcherMatchupScore, generatePitcherQualityScore, generateStreamScore } from "../util/statistics";
-import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 
 const PROBABLE_STARTER_TBD_TEXT = "TBD";
 
@@ -139,26 +137,9 @@ export const combineStreamFinderData = (
 export const roundToNDecimalPlaces = (num: number, decimalPlaces: number) => parseFloat(num.toFixed(decimalPlaces));
 
 export const fetchStuffPlusGoogleDocCurrentSeasonData = async (): Promise<PlayerData[]> => {
-  if (!process.env.GOOGLE_API_CLIENT_EMAIL || !process.env.GOOGLE_API_PRIVATE_KEY) {
-    throw new Error("Issue loading auth credentials from env!");
-  }
+  const playerDataSet = await fetchStuffPlusGoogleDocData(["8/9"]);
 
-  const stuffPlusSheetId = "1AE1dNnudwRS6aLhWA1SArp1GoviUeHNcASXxtm3Le9I";
-  const doc = new GoogleSpreadsheet(stuffPlusSheetId);
-
-  const key = process.env.GOOGLE_API_PRIVATE_KEY.replace(/\\n/g, "\n");
-  await doc.useServiceAccountAuth({
-    client_email: process.env.GOOGLE_API_CLIENT_EMAIL,
-    private_key: key,
-  });
-
-  await doc.loadInfo();
-  const currentSheet = doc.sheetsByTitle["8/9"];
-
-  const currentRows = await currentSheet.getRows({ limit: 1000, offset: 0 });
-  const currentPlayerData = currentRows.map(sheetRowToPlayerData);
-
-  return currentPlayerData;
+  return playerDataSet[0].data;
 };
 
 export const fetchBaseballSavantWOBASplits = async (): Promise<WOBASplitsData> => {

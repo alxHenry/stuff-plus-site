@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 
-import { GoogleSpreadsheet } from "google-spreadsheet";
 import Head from "next/head";
 import { useState } from "react";
 import PlayerTableBody from "../components/PlayerTableBody";
@@ -8,25 +7,10 @@ import { Center, Heading, Stack, Table, TableContainer, Tbody, Th, Thead, Tr } f
 import styles from "../styles/Table.module.css";
 import TableMinimumPitchesFilter from "../components/TableMinimumPitchesFilter";
 import TableDataSetSelectionFilter from "../components/TableDataSetSelectionFilter";
-import { sheetRowToPlayerData } from "../util/stuffPlusOriginSheetUtils";
 import { columnToSortComparatorMap, getSortIcon } from "../util/playerTableUtils";
+import { fetchStuffPlusGoogleDocData, PlayerData, PlayerDataSet } from "../fetching/googleDocFetching";
 
 export const TWELVE_HOURS_IN_SECONDS = 43200;
-
-export interface PlayerData {
-  name: string;
-  handedness: string;
-  mlbId: string;
-  pitchCount: number;
-  stuffPlus: number;
-  locationPlus: number;
-  pitchingPlus: number;
-}
-
-export interface PlayerDataSet {
-  title: string;
-  data: PlayerData[];
-}
 
 export type PlayerColumn = "name" | "pitchCount" | "stuffPlus" | "locationPlus" | "pitchingPlus";
 export type SortDirection = "ascending" | "descending";
@@ -174,49 +158,15 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
   );
 };
 
-const fetchStuffPlusGoogleDocData = async (): Promise<Props> => {
-  if (!process.env.GOOGLE_API_CLIENT_EMAIL || !process.env.GOOGLE_API_PRIVATE_KEY) {
-    throw new Error("Issue loading auth credentials from env!");
-  }
-
-  const stuffPlusSheetId = "1AE1dNnudwRS6aLhWA1SArp1GoviUeHNcASXxtm3Le9I";
-  const doc = new GoogleSpreadsheet(stuffPlusSheetId);
-
-  const key = process.env.GOOGLE_API_PRIVATE_KEY.replace(/\\n/g, "\n");
-  await doc.useServiceAccountAuth({
-    client_email: process.env.GOOGLE_API_CLIENT_EMAIL,
-    private_key: key,
-  });
-
-  await doc.loadInfo();
-  const lastSeasonSheet = doc.sheetsByTitle["End of Season Stuff+/Location+"];
-  const springTrainingSheet = doc.sheetsByTitle["Spring Training 2022 (thru 4/5)"];
-  const currentSheet = doc.sheetsByTitle["8/9"];
-
-  const [currentRows, springTrainingRows, lastSeasonRows] = await Promise.all([
-    currentSheet.getRows({ limit: 1000, offset: 0 }),
-    springTrainingSheet.getRows({ limit: 1000, offset: 0 }),
-    lastSeasonSheet.getRows({ limit: 1000, offset: 0 }),
+export const getStaticProps = async () => {
+  const data = await fetchStuffPlusGoogleDocData([
+    "8/9",
+    "Spring Training 2022 (thru 4/5)",
+    "End of Season Stuff+/Location+",
   ]);
 
-  const currentPlayerData = currentRows.map(sheetRowToPlayerData);
-  const sptringTrainingData = springTrainingRows.map(sheetRowToPlayerData);
-  const lastSeasonPlayerData = lastSeasonRows.map(sheetRowToPlayerData);
-
   return {
-    playerDataSets: [
-      { title: currentSheet.title, data: currentPlayerData },
-      { title: springTrainingSheet.title, data: sptringTrainingData },
-      { title: lastSeasonSheet.title, data: lastSeasonPlayerData },
-    ],
-  };
-};
-
-export const getStaticProps = async () => {
-  const sheetData = await fetchStuffPlusGoogleDocData();
-
-  return {
-    props: sheetData,
+    props: { playerDataSets: data },
     revalidate: TWELVE_HOURS_IN_SECONDS, // Check for source sheet updates every 12 hours when requests come in
   };
 };
