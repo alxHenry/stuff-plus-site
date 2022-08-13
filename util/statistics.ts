@@ -10,6 +10,7 @@ export const generateStreamScore = ({
   fip,
   siera,
   pitchingPlus,
+  opponent,
   wOBAAgainstHandSplit,
 }: StreamScoreData): {
   score: number;
@@ -21,7 +22,7 @@ export const generateStreamScore = ({
     siera,
     pitchingPlus,
   });
-  const { score: matchupScore, breakdown: matchupBreakdown } = generatePitcherMatchupScore({ wOBAAgainstHandSplit });
+  const { score: matchupScore, breakdown: matchupBreakdown } = generatePitcherMatchupScore({ opponent, wOBAAgainstHandSplit });
 
   return { score: qualityScore * QUALITY_WEIGHT + matchupScore * MATCHUP_WEIGHT, qualityBreakdown, matchupBreakdown };
 };
@@ -62,13 +63,16 @@ export const generatePitcherQualityScore = ({
 };
 
 export interface PitcherMatchupScoreInput {
+  readonly opponent: string;
   readonly wOBAAgainstHandSplit: number;
 }
 export interface PitcherMatchupScoreData {
+  readonly info: { opponent: string };
   readonly wOBAAgainstHandSplit: { value: number; score: number };
 }
 // 100% wOBA of opponent vs handedness of pitcher
 export const generatePitcherMatchupScore = ({
+  opponent,
   wOBAAgainstHandSplit,
 }: PitcherMatchupScoreInput): { score: number; breakdown: PitcherMatchupScoreData } => {
   const { baseline } = wOBAColorizerConfig;
@@ -77,6 +81,7 @@ export const generatePitcherMatchupScore = ({
   return {
     score: pitcherMatchupRating,
     breakdown: {
+      info: { opponent },
       wOBAAgainstHandSplit: {
         value: roundToNDecimalPlaces(wOBAAgainstHandSplit, 3),
         score: roundToNDecimalPlaces(pitcherMatchupRating, 2),

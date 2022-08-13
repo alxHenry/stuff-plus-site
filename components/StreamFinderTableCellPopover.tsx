@@ -46,6 +46,7 @@ const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
     </Thead>
   );
   let bodyContent;
+  let tableTitle = "Breakdown";
 
   if (isQualityBreakdown(breakdown)) {
     bodyContent = (
@@ -79,6 +80,7 @@ const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
       </TableContainer>
     );
   } else {
+    tableTitle = `${breakdown.info.opponent} L30`;
     bodyContent = (
       <TableContainer>
         <Table>
@@ -105,7 +107,7 @@ const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
   const content = (
     <PopoverContent color="white">
       <PopoverHeader fontWeight="semibold" backgroundColor="teal.800">
-        Breakdown
+        {tableTitle}
       </PopoverHeader>
       <PopoverArrow />
       <PopoverCloseButton />
