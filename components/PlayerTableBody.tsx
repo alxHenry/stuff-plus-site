@@ -1,6 +1,6 @@
 import { Td, Tr } from "@chakra-ui/react";
 import { FunctionComponent } from "react";
-import { PlayerData } from "../pages";
+import { PlayerData } from "../fetching/googleDocFetching";
 import { stuffPlusColorizerConfig } from "../util/mlb";
 import { pitchScoreToColorGradient } from "../util/playerTableUtils";
 
