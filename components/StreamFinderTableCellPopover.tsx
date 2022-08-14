@@ -49,6 +49,7 @@ const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
   let tableTitle = "Breakdown";
 
   if (isQualityBreakdown(breakdown)) {
+    tableTitle = `${breakdown.info.name} - last 60`;
     bodyContent = (
       <TableContainer>
         <Table>
@@ -80,7 +81,7 @@ const StreamFinderTableCellPopover: FC<Props> = ({ breakdown, children }) => {
       </TableContainer>
     );
   } else {
-    tableTitle = `${breakdown.info.opponent} L30`;
+    tableTitle = `${breakdown.info.opponent} vs ${breakdown.info.handedness}HP - last 30`;
     bodyContent = (
       <TableContainer>
         <Table>

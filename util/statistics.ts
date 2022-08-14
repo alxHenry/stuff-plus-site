@@ -8,6 +8,8 @@ export interface StreamScoreData extends PitcherQualityScoreInput, PitcherMatchu
 
 export const generateStreamScore = ({
   fip,
+  handedness,
+  name,
   siera,
   pitchingPlus,
   opponent,
@@ -19,20 +21,27 @@ export const generateStreamScore = ({
 } => {
   const { score: qualityScore, breakdown: qualityBreakdown } = generatePitcherQualityScore({
     fip,
+    name,
     siera,
     pitchingPlus,
   });
-  const { score: matchupScore, breakdown: matchupBreakdown } = generatePitcherMatchupScore({ opponent, wOBAAgainstHandSplit });
+  const { score: matchupScore, breakdown: matchupBreakdown } = generatePitcherMatchupScore({
+    handedness,
+    opponent,
+    wOBAAgainstHandSplit,
+  });
 
   return { score: qualityScore * QUALITY_WEIGHT + matchupScore * MATCHUP_WEIGHT, qualityBreakdown, matchupBreakdown };
 };
 
 export interface PitcherQualityScoreInput {
   fip: number;
+  name: string;
   pitchingPlus: number;
   siera: number;
 }
 export interface PitcherQualityScoreData {
+  info: { name: string };
   fip: { value: number; score: number };
   pitchingPlus: { score: number };
   siera: { value: number; score: number };
@@ -40,6 +49,7 @@ export interface PitcherQualityScoreData {
 
 // 50% Pitching+, 20% FIP, 30% SIERA = 100% quality
 export const generatePitcherQualityScore = ({
+  name,
   pitchingPlus,
   fip,
   siera,
@@ -55,6 +65,7 @@ export const generatePitcherQualityScore = ({
   return {
     score: pitcherQualityRating,
     breakdown: {
+      info: { name },
       fip: { value: roundToNDecimalPlaces(fip, 2), score: roundToNDecimalPlaces(fipRating, 2) },
       siera: { value: roundToNDecimalPlaces(siera, 2), score: roundToNDecimalPlaces(sieraRating, 2) },
       pitchingPlus: { score: roundToNDecimalPlaces(pitchingPlusRating, 1) },
@@ -63,15 +74,17 @@ export const generatePitcherQualityScore = ({
 };
 
 export interface PitcherMatchupScoreInput {
+  readonly handedness: string;
   readonly opponent: string;
   readonly wOBAAgainstHandSplit: number;
 }
 export interface PitcherMatchupScoreData {
-  readonly info: { opponent: string };
+  readonly info: { handedness: string; opponent: string };
   readonly wOBAAgainstHandSplit: { value: number; score: number };
 }
 // 100% wOBA of opponent vs handedness of pitcher
 export const generatePitcherMatchupScore = ({
+  handedness,
   opponent,
   wOBAAgainstHandSplit,
 }: PitcherMatchupScoreInput): { score: number; breakdown: PitcherMatchupScoreData } => {
@@ -81,7 +94,7 @@ export const generatePitcherMatchupScore = ({
   return {
     score: pitcherMatchupRating,
     breakdown: {
-      info: { opponent },
+      info: { handedness, opponent },
       wOBAAgainstHandSplit: {
         value: roundToNDecimalPlaces(wOBAAgainstHandSplit, 3),
         score: roundToNDecimalPlaces(pitcherMatchupRating, 2),

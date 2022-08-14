@@ -105,8 +105,12 @@ export const combineStreamFinderData = (
       const teamSplits = wOBASplits[opposingTeamAbbrev];
       const wOBAAgainstHandSplit = pitcherStuffData.handedness === "R" ? teamSplits.vsR : teamSplits.vsL;
 
-      const qualityData = { pitchingPlus: pitcherStuffData.pitchingPlus, fip, siera };
-      const matchupData = { opponent: probableStarter.opposingTeam, wOBAAgainstHandSplit };
+      const qualityData = { name: probableStarter.name, pitchingPlus: pitcherStuffData.pitchingPlus, fip, siera };
+      const matchupData = {
+        handedness: pitcherStuffData.handedness,
+        opponent: probableStarter.opposingTeam,
+        wOBAAgainstHandSplit,
+      };
 
       const quality = generatePitcherQualityScore(qualityData);
       const matchup = generatePitcherMatchupScore(matchupData);
