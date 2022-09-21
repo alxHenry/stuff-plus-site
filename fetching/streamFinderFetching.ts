@@ -141,7 +141,7 @@ export const combineStreamFinderData = (
 export const roundToNDecimalPlaces = (num: number, decimalPlaces: number) => parseFloat(num.toFixed(decimalPlaces));
 
 export const fetchStuffPlusGoogleDocCurrentSeasonData = async (): Promise<PlayerData[]> => {
-  const playerDataSet = await fetchStuffPlusGoogleDocData(["8/9"]);
+  const playerDataSet = await fetchStuffPlusGoogleDocData(["9/16"]);
 
   return playerDataSet[0].data;
 };
