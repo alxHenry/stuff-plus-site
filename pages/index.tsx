@@ -159,11 +159,7 @@ const Home: NextPage<Props> = ({ playerDataSets: originalPlayerDataSets }) => {
 };
 
 export const getStaticProps = async () => {
-  const data = await fetchStuffPlusGoogleDocData([
-    "9/16",
-    "Spring Training 2022 (thru 4/5)",
-    "End of Season Stuff+/Location+",
-  ]);
+  const data = await fetchStuffPlusGoogleDocData(["Spring 23 Final"]);
 
   return {
     props: { playerDataSets: data },
